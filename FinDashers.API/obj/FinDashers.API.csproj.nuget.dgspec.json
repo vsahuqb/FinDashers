@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Talentica\\Src\\FinDashers\\FinDashers.API\\FinDashers.API.csproj": {}
+    "C:\\Users\\PradeepKu\\FinDasher\\FinDashers.API\\FinDashers.API.csproj": {}
   },
   "projects": {
-    "C:\\Talentica\\Src\\FinDashers\\FinDashers.API\\FinDashers.API.csproj": {
+    "C:\\Users\\PradeepKu\\FinDasher\\FinDashers.API\\FinDashers.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Talentica\\Src\\FinDashers\\FinDashers.API\\FinDashers.API.csproj",
+        "projectUniqueName": "C:\\Users\\PradeepKu\\FinDasher\\FinDashers.API\\FinDashers.API.csproj",
         "projectName": "FinDashers.API",
-        "projectPath": "C:\\Talentica\\Src\\FinDashers\\FinDashers.API\\FinDashers.API.csproj",
-        "packagesPath": "C:\\Users\\vinods\\.nuget\\packages\\",
-        "outputPath": "C:\\Talentica\\Src\\FinDashers\\FinDashers.API\\obj\\",
+        "projectPath": "C:\\Users\\PradeepKu\\FinDasher\\FinDashers.API\\FinDashers.API.csproj",
+        "packagesPath": "C:\\Users\\PradeepKu\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\PradeepKu\\FinDasher\\FinDashers.API\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\vinods\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\PradeepKu\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,15 +26,15 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
+          "C:\\Users\\PradeepKu\\Source\\Repos\\QuPaymentIntegrations\\main\\Qu.Payments.Verifone\\bin\\Debug\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Talentica\\Src\\FinDashers\\FinDashers.Core\\FinDashers.Core.csproj": {
-                "projectPath": "C:\\Talentica\\Src\\FinDashers\\FinDashers.Core\\FinDashers.Core.csproj"
+              "C:\\Users\\PradeepKu\\FinDasher\\FinDashers.Core\\FinDashers.Core.csproj": {
+                "projectPath": "C:\\Users\\PradeepKu\\FinDasher\\FinDashers.Core\\FinDashers.Core.csproj"
               }
             }
           }
@@ -49,7 +49,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -66,6 +66,10 @@
             "Microsoft.Data.Sqlite": {
               "target": "Package",
               "version": "[10.0.1, )"
+            },
+            "Npgsql": {
+              "target": "Package",
+              "version": "[10.0.0, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
@@ -90,19 +94,19 @@
           "downloadDependencies": [
             {
               "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[8.0.17, 8.0.17]"
             },
             {
               "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[8.0.17, 8.0.17]"
             },
             {
               "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[8.0.17, 8.0.17]"
             },
             {
               "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[8.0.17, 8.0.17]"
             }
           ],
           "frameworkReferences": {
@@ -113,24 +117,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.100/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.205/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Talentica\\Src\\FinDashers\\FinDashers.Core\\FinDashers.Core.csproj": {
+    "C:\\Users\\PradeepKu\\FinDasher\\FinDashers.Core\\FinDashers.Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Talentica\\Src\\FinDashers\\FinDashers.Core\\FinDashers.Core.csproj",
+        "projectUniqueName": "C:\\Users\\PradeepKu\\FinDasher\\FinDashers.Core\\FinDashers.Core.csproj",
         "projectName": "FinDashers.Core",
-        "projectPath": "C:\\Talentica\\Src\\FinDashers\\FinDashers.Core\\FinDashers.Core.csproj",
-        "packagesPath": "C:\\Users\\vinods\\.nuget\\packages\\",
-        "outputPath": "C:\\Talentica\\Src\\FinDashers\\FinDashers.Core\\obj\\",
+        "projectPath": "C:\\Users\\PradeepKu\\FinDasher\\FinDashers.Core\\FinDashers.Core.csproj",
+        "packagesPath": "C:\\Users\\PradeepKu\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\PradeepKu\\FinDasher\\FinDashers.Core\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\vinods\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\PradeepKu\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -139,7 +143,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
+          "C:\\Users\\PradeepKu\\Source\\Repos\\QuPaymentIntegrations\\main\\Qu.Payments.Verifone\\bin\\Debug\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -158,7 +162,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "10.0.100"
+        "SdkAnalysisLevel": "9.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -177,15 +181,15 @@
           "downloadDependencies": [
             {
               "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[8.0.17, 8.0.17]"
             },
             {
               "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[8.0.17, 8.0.17]"
             },
             {
               "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.22, 8.0.22]"
+              "version": "[8.0.17, 8.0.17]"
             }
           ],
           "frameworkReferences": {
@@ -193,7 +197,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.100/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.205/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

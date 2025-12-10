@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "PXKW+//7wJo=",
+  "dgSpecHash": "XkFW8/Ilxt8=",
   "success": true,
-  "projectFilePath": "C:\\Talentica\\Src\\FinDashers\\FinDashers.Core\\FinDashers.Core.csproj",
+  "projectFilePath": "C:\\Users\\PradeepKu\\FinDasher\\FinDashers.Core\\FinDashers.Core.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\vinods\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.22\\microsoft.netcore.app.ref.8.0.22.nupkg.sha512",
-    "C:\\Users\\vinods\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.22\\microsoft.windowsdesktop.app.ref.8.0.22.nupkg.sha512",
-    "C:\\Users\\vinods\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.22\\microsoft.aspnetcore.app.ref.8.0.22.nupkg.sha512"
+    "C:\\Users\\PradeepKu\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\8.0.17\\microsoft.windowsdesktop.app.ref.8.0.17.nupkg.sha512",
+    "C:\\Users\\PradeepKu\\.nuget\\packages\\microsoft.netcore.app.ref\\8.0.17\\microsoft.netcore.app.ref.8.0.17.nupkg.sha512",
+    "C:\\Users\\PradeepKu\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\8.0.17\\microsoft.aspnetcore.app.ref.8.0.17.nupkg.sha512"
   ],
   "logs": []
 }
