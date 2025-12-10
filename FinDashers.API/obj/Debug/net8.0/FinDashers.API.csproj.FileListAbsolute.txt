@@ -87,6 +87,7 @@ C:\Users\PradeepKu\FinDasher\FinDashers.API\bin\Debug\net8.0\SQLitePCLRaw.provid
 C:\Users\PradeepKu\FinDasher\FinDashers.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
 C:\Users\PradeepKu\FinDasher\FinDashers.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\PradeepKu\FinDasher\FinDashers.API\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+C:\Users\PradeepKu\FinDasher\FinDashers.API\bin\Debug\net8.0\System.Diagnostics.DiagnosticSource.dll
 C:\Users\PradeepKu\FinDasher\FinDashers.API\bin\Debug\net8.0\System.IO.Pipelines.dll
 C:\Users\PradeepKu\FinDasher\FinDashers.API\bin\Debug\net8.0\System.Text.Encodings.Web.dll
 C:\Users\PradeepKu\FinDasher\FinDashers.API\bin\Debug\net8.0\System.Text.Json.dll
@@ -140,5 +141,4 @@ C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\refint\FinDashers.A
 C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\FinDashers.API.pdb
 C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\FinDashers.API.genruntimeconfig.cache
 C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\ref\FinDashers.API.dll
-C:\Users\PradeepKu\FinDasher\FinDashers.API\bin\Debug\net8.0\System.Diagnostics.DiagnosticSource.dll
 C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

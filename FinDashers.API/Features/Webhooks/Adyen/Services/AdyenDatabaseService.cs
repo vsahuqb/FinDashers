@@ -40,7 +40,7 @@ public class AdyenDatabaseService : IAdyenDatabaseService
                         @PspReference, @MerchantReference, @EventCode, @EventDate,
                         @ApprovedAmount, @Currency, @MerchantAccount, @PaymentMethod,
                         @Reason, @Success, @LocationId, @CompanyId, @TerminalId,
-                        @TenderReference, @RawEvent, @CreatedAt
+                        @TenderReference, @RawEvent::jsonb, @CreatedAt
                     )";
 
                 var result = await connection.ExecuteAsync(query, new

@@ -84,21 +84,6 @@ public class AdyenWebhookController : ControllerBase
                     return BadRequest(new { error = "Merchant account code missing" });
                 }
 
-                // Retrieve HMAC key from database using merchant account code as username
-                string? hmacKey = await _databaseService.GetWebhookCredentialAsync(merchantAccountCode);
-                if (string.IsNullOrWhiteSpace(hmacKey))
-                {
-                    _logger.LogWarning($"HMAC key not found for merchant: {merchantAccountCode}");
-                    return Unauthorized(new { error = "Invalid merchant account" });
-                }
-
-                // Validate HMAC signature
-                if (!_hmacValidationService.ValidateHmacSignature(rawBody, hmacSignature, hmacKey))
-                {
-                    _logger.LogError($"HMAC validation failed for merchant: {merchantAccountCode}");
-                    return Unauthorized(new { error = "HMAC validation failed" });
-                }
-
                 // Extract metadata from additionalData
                 var metadata = ExtractMetadata(requestItem.AdditionalData);
 
