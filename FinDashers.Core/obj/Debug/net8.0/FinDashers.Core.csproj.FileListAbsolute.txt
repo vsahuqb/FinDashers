@@ -1,0 +1,11 @@
+C:\Talentica\Src\NL2SQL\FinDashers.Core\bin\Debug\net8.0\FinDashers.Core.deps.json
+C:\Talentica\Src\NL2SQL\FinDashers.Core\bin\Debug\net8.0\FinDashers.Core.dll
+C:\Talentica\Src\NL2SQL\FinDashers.Core\bin\Debug\net8.0\FinDashers.Core.pdb
+C:\Talentica\Src\NL2SQL\FinDashers.Core\obj\Debug\net8.0\FinDashers.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Talentica\Src\NL2SQL\FinDashers.Core\obj\Debug\net8.0\FinDashers.Core.AssemblyInfoInputs.cache
+C:\Talentica\Src\NL2SQL\FinDashers.Core\obj\Debug\net8.0\FinDashers.Core.AssemblyInfo.cs
+C:\Talentica\Src\NL2SQL\FinDashers.Core\obj\Debug\net8.0\FinDashers.Core.csproj.CoreCompileInputs.cache
+C:\Talentica\Src\NL2SQL\FinDashers.Core\obj\Debug\net8.0\FinDashers.Core.dll
+C:\Talentica\Src\NL2SQL\FinDashers.Core\obj\Debug\net8.0\refint\FinDashers.Core.dll
+C:\Talentica\Src\NL2SQL\FinDashers.Core\obj\Debug\net8.0\FinDashers.Core.pdb
+C:\Talentica\Src\NL2SQL\FinDashers.Core\obj\Debug\net8.0\ref\FinDashers.Core.dll
