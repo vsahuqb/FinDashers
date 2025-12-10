@@ -13,16 +13,16 @@ namespace FinDashers.API.Features.Webhooks.Adyen.Controllers;
 public class AdyenWebhookController : ControllerBase
 {
     private readonly IAdyenHmacValidationService _hmacValidationService;
-    private readonly IAdyenDatabaseService _databaseService;
+    private readonly IRedisStreamService _redisStreamService;
     private readonly ILogger<AdyenWebhookController> _logger;
 
     public AdyenWebhookController(
         IAdyenHmacValidationService hmacValidationService,
-        IAdyenDatabaseService databaseService,
+        IRedisStreamService redisStreamService,
         ILogger<AdyenWebhookController> logger)
     {
         _hmacValidationService = hmacValidationService;
-        _databaseService = databaseService;
+        _redisStreamService = redisStreamService;
         _logger = logger;
     }
 
@@ -108,10 +108,17 @@ public class AdyenWebhookController : ControllerBase
                     CreatedAt = DateTime.UtcNow
                 };
 
-                // Insert into database
-                await _databaseService.InsertAdyenTransactionAsync(transaction);
-
-                _logger.LogInformation($"Successfully processed Adyen notification for PSP Reference: {transaction.PspReference}");
+                // Publish to Redis Stream
+                try
+                {
+                    await _redisStreamService.PublishWebhookEventAsync(transaction);
+                    _logger.LogInformation($"Successfully published Adyen notification to Redis Stream for PSP Reference: {transaction.PspReference}");
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError($"Failed to publish webhook event to Redis Stream: {ex.Message}");
+                    return StatusCode(500, new { error = "Failed to process webhook event" });
+                }
             }
 
             // Return Adyen's expected response

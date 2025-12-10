@@ -141,4 +141,5 @@ C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\refint\FinDashers.A
 C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\FinDashers.API.pdb
 C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\FinDashers.API.genruntimeconfig.cache
 C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\ref\FinDashers.API.dll
-C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+c:\Users\PradeepKu\FinDasher\FinDashers.API\bin\Debug\net8.0\Pipelines.Sockets.Unofficial.dll
+c:\Users\PradeepKu\FinDasher\FinDashers.API\bin\Debug\net8.0\StackExchange.Redis.dll

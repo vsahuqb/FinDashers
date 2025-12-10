@@ -1,4 +1,5 @@
 using FinDashers.API.Features.Webhooks.Adyen.Services;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,10 +8,16 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Add Redis
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+var redisConnection = ConnectionMultiplexer.Connect(redisConnectionString ?? "localhost:6379");
+builder.Services.AddSingleton<IConnectionMultiplexer>(redisConnection);
+
 // Add Adyen Webhook Services
 builder.Services.AddScoped<IAdyenHmacValidationService, AdyenHmacValidationService>();
 builder.Services.AddScoped<IAdyenDatabaseService, AdyenDatabaseService>();
 builder.Services.AddScoped<IAdyenBasicAuthorizationService, AdyenBasicAuthorizationService>();
+builder.Services.AddScoped<IRedisStreamService, RedisStreamService>();
 
 // Add Controllers
 builder.Services.AddControllers();
