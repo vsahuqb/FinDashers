@@ -10,6 +10,7 @@ builder.Services.AddSwaggerGen();
 // Add Adyen Webhook Services
 builder.Services.AddScoped<IAdyenHmacValidationService, AdyenHmacValidationService>();
 builder.Services.AddScoped<IAdyenDatabaseService, AdyenDatabaseService>();
+builder.Services.AddScoped<IAdyenBasicAuthorizationService, AdyenBasicAuthorizationService>();
 
 // Add Controllers
 builder.Services.AddControllers();

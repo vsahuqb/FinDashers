@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
+using FinDashers.API.Features.Webhooks.Adyen.Attributes;
 using FinDashers.API.Features.Webhooks.Adyen.DTOs;
 using FinDashers.API.Features.Webhooks.Adyen.Models;
 using FinDashers.API.Features.Webhooks.Adyen.Services;
@@ -8,6 +9,7 @@ namespace FinDashers.API.Features.Webhooks.Adyen.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[AdyenBasicAuthentication]
 public class AdyenWebhookController : ControllerBase
 {
     private readonly IAdyenHmacValidationService _hmacValidationService;

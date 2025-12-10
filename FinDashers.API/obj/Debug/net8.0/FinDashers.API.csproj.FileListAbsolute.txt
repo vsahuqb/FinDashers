@@ -140,5 +140,5 @@ C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\refint\FinDashers.A
 C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\FinDashers.API.pdb
 C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\FinDashers.API.genruntimeconfig.cache
 C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\ref\FinDashers.API.dll
-C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\Users\PradeepKu\FinDasher\FinDashers.API\bin\Debug\net8.0\System.Diagnostics.DiagnosticSource.dll
+C:\Users\PradeepKu\FinDasher\FinDashers.API\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

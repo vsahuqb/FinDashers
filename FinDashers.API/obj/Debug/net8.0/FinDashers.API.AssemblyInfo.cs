@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FinDashers.API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+7e230e8954ef6e73e27af7b7059deb48bf39e152")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5df44486c68bc7941e9a29a776099eeae571d8bf")]
 [assembly: System.Reflection.AssemblyProductAttribute("FinDashers.API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FinDashers.API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
