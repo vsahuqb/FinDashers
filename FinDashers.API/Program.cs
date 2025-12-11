@@ -1,4 +1,5 @@
 using FinDashers.API.Features.Webhooks.Adyen.Services;
+using FinDashers.API.Services.Dashboard;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +19,14 @@ builder.Services.AddScoped<IAdyenHmacValidationService, AdyenHmacValidationServi
 builder.Services.AddScoped<IAdyenDatabaseService, AdyenDatabaseService>();
 builder.Services.AddScoped<IAdyenBasicAuthorizationService, AdyenBasicAuthorizationService>();
 builder.Services.AddScoped<IRedisStreamService, RedisStreamService>();
+
+// Add Dashboard Services
+builder.Services.AddScoped<IPaymentSuccessRateService, PaymentSuccessRateService>();
+builder.Services.AddScoped<IHeatIndexCalculatorService, HeatIndexCalculatorService>();
+builder.Services.AddScoped<IUnusualFailuresCalculator, UnusualFailuresCalculator>();
+builder.Services.AddScoped<ISettlementDelayCalculator, SettlementDelayCalculator>();
+builder.Services.AddScoped<IHighRiskCardCalculator, HighRiskCardCalculator>();
+builder.Services.AddScoped<IRefundSpikeCalculator, RefundSpikeCalculator>();
 
 // Add Controllers
 builder.Services.AddControllers();

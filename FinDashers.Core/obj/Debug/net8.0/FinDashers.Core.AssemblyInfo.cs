@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FinDashers.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f4fe5fcd8ab83a62c0b45b3f7e2659b3bf2c1ce0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0a78272d6c38664769f0affb160e9b3ba6d93b62")]
 [assembly: System.Reflection.AssemblyProductAttribute("FinDashers.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FinDashers.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
