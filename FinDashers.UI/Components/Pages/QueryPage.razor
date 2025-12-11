@@ -1,0 +1,488 @@
+@page "/query"
+@using FinDashers.UI.Services
+@using System.Text.Json
+@inject NL2SQLApiClient ApiClient
+@inject IJSRuntime JSRuntime
+
+<PageTitle>NL2SQL Query Interface</PageTitle>
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="display-4 text-primary mb-4">
+                <i class="fas fa-database me-2"></i>
+                Natural Language to SQL
+            </h1>
+            <p class="lead text-muted mb-4">
+                Ask questions about your payment data in plain English and get instant SQL results.
+            </p>
+        </div>
+    </div>
+
+    <!-- Query Input Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-question-circle me-2"></i>
+                        Ask Your Question
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <div class="form-group">
+                                <label for="queryInput" class="form-label fw-bold">Natural Language Query</label>
+                                <textarea @bind-value="currentQuery" 
+                                         @bind-value:event="oninput"
+                                         @onkeypress="HandleKeyPress"
+                                         id="queryInput"
+                                         class="form-control form-control-lg" 
+                                         rows="3" 
+                                         placeholder="e.g., Show me all payments for location 115 today"
+                                         disabled="@isLoading">
+                                </textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Domain</label>
+                            <select @bind="selectedDomain" class="form-select mb-3" disabled="@isLoading">
+                                <option value="">Auto-detect</option>
+                                @foreach (var domain in availableDomains)
+                                {
+                                    <option value="@domain">@domain</option>
+                                }
+                            </select>
+                            
+                            <button class="btn btn-primary btn-lg w-100" 
+                                    @onclick="ExecuteQuery" 
+                                    disabled="@IsButtonDisabled">
+                                @if (isLoading)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2"></span>
+                                }
+                                <i class="fas fa-search me-2"></i>
+                                Query
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Examples -->
+                    <div class="mt-3">
+                        <small class="text-muted fw-bold">Quick Examples:</small>
+                        <div class="d-flex flex-wrap gap-2 mt-2">
+                            @foreach (var example in exampleQueries)
+                            {
+                                <button class="btn btn-outline-secondary btn-sm" 
+                                        @onclick="() => SetExampleQuery(example)"
+                                        disabled="@isLoading">
+                                    @example
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Status -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card border-0 bg-light">
+                <div class="card-body text-center py-2">
+                    <small class="text-muted">Available Domains:</small>
+                    <div class="mt-1">
+                        @if (availableDomains.Any())
+                        {
+                            @foreach (var domain in availableDomains)
+                            {
+                                <span class="badge bg-success me-1">@domain</span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning">Loading...</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 bg-light">
+                <div class="card-body text-center py-2">
+                    <small class="text-muted">Available Providers:</small>
+                    <div class="mt-1">
+                        @if (availableProviders.Any())
+                        {
+                            @foreach (var provider in availableProviders)
+                            {
+                                <span class="badge bg-info me-1">@provider</span>
+                            }
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning">Loading...</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    @if (queryResults.Any())
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-chart-bar me-2"></i>
+                            Query Results
+                        </h5>
+                        <small>@queryResults.Count result(s)</small>
+                    </div>
+                    <div class="card-body">
+                        <!-- Results Navigation -->
+                        @if (queryResults.Count > 1)
+                        {
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                    <button class="btn btn-outline-primary btn-sm" 
+                                            @onclick="PreviousResult"
+                                            disabled="@(currentResultIndex <= 0)">
+                                        <i class="fas fa-chevron-left"></i> Previous
+                                    </button>
+                                    <span class="mx-3">Result @(currentResultIndex + 1) of @queryResults.Count</span>
+                                    <button class="btn btn-outline-primary btn-sm" 
+                                            @onclick="NextResult"
+                                            disabled="@(currentResultIndex >= queryResults.Count - 1)">
+                                        Next <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+
+                        @{
+                            var result = queryResults[currentResultIndex];
+                        }
+
+                        <!-- Query Info -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <small class="text-muted">
+                                    <strong>Query:</strong> @result.OriginalQuery
+                                </small>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <small class="text-muted">
+                                    <strong>Provider:</strong> 
+                                    <span class="badge bg-primary">@(result.Provider ?? "Unknown")</span>
+                                    <strong class="ms-2">Rows:</strong> @result.RowCount
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Generated SQL -->
+                        <div class="mb-3">
+                            <button class="btn btn-outline-secondary btn-sm" 
+                                    @onclick="() => ToggleSqlVisibility(currentResultIndex)">
+                                <i class="fas fa-code me-1"></i>
+                                @(result.ShowSql ? "Hide" : "Show") Generated SQL
+                            </button>
+                        </div>
+
+                        @if (result.ShowSql && result.SqlScript.Any())
+                        {
+                            <div class="alert alert-secondary mb-3">
+                                <strong>Generated SQL:</strong>
+                                <pre class="mb-0 mt-2"><code>@string.Join(";\n", result.SqlScript)</code></pre>
+                            </div>
+                        }
+
+                        <!-- Data Table -->
+                        @if (result.Success && result.Data != null && result.Data.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            @foreach (var column in result.ColumnNames)
+                                            {
+                                                <th>@column</th>
+                                            }
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var row in result.Data.Take(50))
+                                        {
+                                            <tr>
+                                                @foreach (var column in result.ColumnNames)
+                                                {
+                                                    <td>@GetPropertyValue(row, column)</td>
+                                                }
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                @if (result.RowCount > 50)
+                                {
+                                    <div class="text-center mt-2">
+                                        <small class="text-muted">Showing first 50 of @result.RowCount rows</small>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else if (!result.Success)
+                        {
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Error:</strong> @result.Error
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                No data returned from query.
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Loading Overlay -->
+    @if (isLoading)
+    {
+        <div class="loading-overlay">
+            <div class="loading-content">
+                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;"></div>
+                <p class="mt-3 text-primary">Processing your query...</p>
+                <small class="text-muted">This may take a few seconds</small>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1050;
+    }
+
+    .loading-content {
+        background: white;
+        padding: 2rem;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .card {
+        transition: box-shadow 0.15s ease-in-out;
+    }
+
+    .card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    pre code {
+        background: transparent;
+        color: #495057;
+        font-size: 0.9em;
+    }
+
+    .btn-outline-secondary:hover {
+        transform: translateY(-1px);
+        transition: transform 0.15s ease-in-out;
+    }
+</style>
+
+@code {
+    private string currentQuery = "";
+    private string selectedDomain = "";
+    private bool isLoading = false;
+    private int currentResultIndex = 0;
+    
+    private bool IsButtonDisabled => isLoading || string.IsNullOrWhiteSpace(currentQuery);
+    
+    private List<string> availableDomains = new();
+    private List<string> availableProviders = new();
+    private List<QueryResultModel> queryResults = new();
+    
+    private readonly string[] exampleQueries = {
+        "Show me all payments for location 115",
+        "What's the total revenue for today?",
+        "How many failed payments do we have?",
+        "Show me all Mastercard transactions",
+        "Which employee processed the most transactions?"
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSystemInfo();
+    }
+
+    private async Task LoadSystemInfo()
+    {
+        try
+        {
+            var domainsResponse = await ApiClient.GetDomainsAsync();
+            availableDomains = domainsResponse.AvailableDomains;
+            availableProviders = domainsResponse.AvailableProviders;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading system info: {ex.Message}");
+        }
+    }
+
+    private async Task ExecuteQuery()
+    {
+        if (string.IsNullOrWhiteSpace(currentQuery) || isLoading)
+            return;
+
+        isLoading = true;
+        StateHasChanged();
+
+        try
+        {
+            var domain = string.IsNullOrEmpty(selectedDomain) ? null : selectedDomain;
+            var response = await ApiClient.ProcessQueryAsync(currentQuery, domain);
+            
+            var resultModel = new QueryResultModel
+            {
+                OriginalQuery = currentQuery,
+                Success = response.Success,
+                Data = response.Data,
+                ColumnNames = response.ColumnNames,
+                RowCount = response.RowCount,
+                SqlScript = response.SqlScript,
+                Error = response.Error,
+                Provider = response.Provider,
+                Timestamp = DateTime.Now,
+                ShowSql = false
+            };
+
+            queryResults.Insert(0, resultModel);
+            currentResultIndex = 0;
+
+            // Scroll to results
+            await JSRuntime.InvokeVoidAsync("scrollToResults");
+        }
+        catch (Exception ex)
+        {
+            var errorResult = new QueryResultModel
+            {
+                OriginalQuery = currentQuery,
+                Success = false,
+                Error = ex.Message,
+                Timestamp = DateTime.Now
+            };
+            queryResults.Insert(0, errorResult);
+            currentResultIndex = 0;
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void SetExampleQuery(string query)
+    {
+        currentQuery = query;
+        StateHasChanged();
+    }
+
+    private async Task HandleKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && e.CtrlKey)
+        {
+            await ExecuteQuery();
+        }
+    }
+
+    private void PreviousResult()
+    {
+        if (currentResultIndex > 0)
+        {
+            currentResultIndex--;
+            StateHasChanged();
+        }
+    }
+
+    private void NextResult()
+    {
+        if (currentResultIndex < queryResults.Count - 1)
+        {
+            currentResultIndex++;
+            StateHasChanged();
+        }
+    }
+
+    private void ToggleSqlVisibility(int index)
+    {
+        if (index >= 0 && index < queryResults.Count)
+        {
+            queryResults[index].ShowSql = !queryResults[index].ShowSql;
+            StateHasChanged();
+        }
+    }
+
+    private string GetPropertyValue(dynamic obj, string propertyName)
+    {
+        try
+        {
+            if (obj is JsonElement element)
+            {
+                if (element.TryGetProperty(propertyName, out var property))
+                {
+                    return property.ToString();
+                }
+            }
+            else
+            {
+                var type = obj.GetType();
+                var prop = type.GetProperty(propertyName);
+                if (prop != null)
+                {
+                    var value = prop.GetValue(obj);
+                    return value?.ToString() ?? "";
+                }
+            }
+            return "";
+        }
+        catch
+        {
+            return "";
+        }
+    }
+
+    public class QueryResultModel
+    {
+        public string OriginalQuery { get; set; } = "";
+        public bool Success { get; set; }
+        public IEnumerable<dynamic>? Data { get; set; }
+        public List<string> ColumnNames { get; set; } = new();
+        public int RowCount { get; set; }
+        public List<string> SqlScript { get; set; } = new();
+        public string? Error { get; set; }
+        public string? Provider { get; set; }
+        public DateTime Timestamp { get; set; }
+        public bool ShowSql { get; set; }
+    }
+}

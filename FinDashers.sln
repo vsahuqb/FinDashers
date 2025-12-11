@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinDashers.API", "FinDasher
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinDashers.Core", "FinDashers.Core\FinDashers.Core.csproj", "{9BDBC1F0-B72B-430D-A45A-AC7573C9822B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinDashers.UI", "FinDashers.UI\FinDashers.UI.csproj", "{A120DD8C-D3DF-450C-AD6E-891C9E3ACC02}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,18 @@ Global
 		{9BDBC1F0-B72B-430D-A45A-AC7573C9822B}.Release|x64.Build.0 = Release|Any CPU
 		{9BDBC1F0-B72B-430D-A45A-AC7573C9822B}.Release|x86.ActiveCfg = Release|Any CPU
 		{9BDBC1F0-B72B-430D-A45A-AC7573C9822B}.Release|x86.Build.0 = Release|Any CPU
+		{A120DD8C-D3DF-450C-AD6E-891C9E3ACC02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A120DD8C-D3DF-450C-AD6E-891C9E3ACC02}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A120DD8C-D3DF-450C-AD6E-891C9E3ACC02}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A120DD8C-D3DF-450C-AD6E-891C9E3ACC02}.Debug|x64.Build.0 = Debug|Any CPU
+		{A120DD8C-D3DF-450C-AD6E-891C9E3ACC02}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A120DD8C-D3DF-450C-AD6E-891C9E3ACC02}.Debug|x86.Build.0 = Debug|Any CPU
+		{A120DD8C-D3DF-450C-AD6E-891C9E3ACC02}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A120DD8C-D3DF-450C-AD6E-891C9E3ACC02}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A120DD8C-D3DF-450C-AD6E-891C9E3ACC02}.Release|x64.ActiveCfg = Release|Any CPU
+		{A120DD8C-D3DF-450C-AD6E-891C9E3ACC02}.Release|x64.Build.0 = Release|Any CPU
+		{A120DD8C-D3DF-450C-AD6E-891C9E3ACC02}.Release|x86.ActiveCfg = Release|Any CPU
+		{A120DD8C-D3DF-450C-AD6E-891C9E3ACC02}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
