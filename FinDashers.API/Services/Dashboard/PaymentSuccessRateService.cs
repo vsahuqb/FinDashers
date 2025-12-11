@@ -21,9 +21,6 @@ public class PaymentSuccessRateService : IPaymentSuccessRateService
 
     public async Task<PaymentSuccessRate> CalculateSuccessRateAsync(DateTime startDate, DateTime endDate, string? locationId)
     {
-        using var connection = new NpgsqlConnection(_connectionString);
-        await connection.OpenAsync();
-
         var whereClause = "WHERE event_code = 'AUTHORISATION' AND event_date >= @StartDate AND event_date <= @EndDate";
         var parameters = new { StartDate = startDate, EndDate = endDate, LocationId = locationId };
 
@@ -32,37 +29,51 @@ public class PaymentSuccessRateService : IPaymentSuccessRateService
             whereClause += " AND location_id = @LocationId";
         }
 
-        // Daily success rate
-        var dailyRate = await CalculateDailyRateAsync(connection, whereClause, parameters);
-        
-        // Weekly success rate  
-        var weeklyRate = await CalculateWeeklyRateAsync(connection, whereClause, parameters);
+        // Calculate all metrics in parallel with separate connections
+        var financialTask = CalculateFinancialMetricsAsync(whereClause, parameters);
+        var hourlyTask = CalculateHourlyTrendsAsync(whereClause, parameters);
+        var funnelTask = CalculateFunnelMetricsAsync(parameters);
+        var paymentMethodTask = CalculatePaymentMethodRatesAsync(whereClause, parameters);
+        var locationTask = CalculateLocationRatesAsync(whereClause, parameters);
+        var terminalTask = CalculateTerminalRatesAsync(whereClause, parameters);
 
-        // Payment method breakdown
-        var paymentMethodRates = await CalculatePaymentMethodRatesAsync(connection, whereClause, parameters);
+        await Task.WhenAll(financialTask, hourlyTask, funnelTask, paymentMethodTask, locationTask, terminalTask);
 
-        // Location breakdown (if not filtered by location)
-        var locationRates = string.IsNullOrEmpty(locationId) 
-            ? await CalculateLocationRatesAsync(connection, whereClause, parameters)
-            : new List<LocationRate>();
-
-        // Terminal breakdown
-        var terminalRates = await CalculateTerminalRatesAsync(connection, whereClause, parameters);
+        var financialMetrics = await financialTask;
+        var hourlyTrends = await hourlyTask;
+        var funnelMetrics = await funnelTask;
+        var paymentMethodRates = await paymentMethodTask;
+        var locationRates = string.IsNullOrEmpty(locationId) ? await locationTask : new List<LocationRate>();
+        var terminalRates = await terminalTask;
 
         return new PaymentSuccessRate
         {
-            DailySuccessRate = dailyRate,
-            WeeklySuccessRate = weeklyRate,
+            DailySuccessRate = financialMetrics.DailySuccessRate,
+            WeeklySuccessRate = financialMetrics.WeeklySuccessRate,
+            NetSales = financialMetrics.NetSales,
+            AvgTicket = financialMetrics.AvgTicket,
+            ApprovedCount = financialMetrics.ApprovedCount,
+            DeclinedCount = financialMetrics.DeclinedCount,
+            TotalTransactions = financialMetrics.TotalTransactions,
+            HourlyTrends = hourlyTrends,
+            FunnelMetrics = funnelMetrics,
             PaymentMethodRates = paymentMethodRates,
             LocationRates = locationRates,
             TerminalRates = terminalRates
         };
     }
 
-    private async Task<decimal> CalculateDailyRateAsync(NpgsqlConnection connection, string whereClause, object parameters)
+    private async Task<(decimal DailySuccessRate, decimal WeeklySuccessRate, decimal NetSales, decimal AvgTicket, int ApprovedCount, int DeclinedCount, int TotalTransactions)> CalculateFinancialMetricsAsync(string whereClause, object parameters)
     {
+        using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+        
         var query = $@"
             SELECT 
+                COUNT(*) as total_transactions,
+                SUM(CASE WHEN success = true THEN 1 ELSE 0 END) as approved_count,
+                SUM(CASE WHEN success = false THEN 1 ELSE 0 END) as declined_count,
+                COALESCE(SUM(CASE WHEN success = true THEN approved_amount ELSE 0 END), 0) as net_sales,
                 COALESCE(
                     ROUND(
                         (SUM(CASE WHEN success = true THEN 1 ELSE 0 END)::decimal / COUNT(*)) * 100, 2
@@ -71,20 +82,115 @@ public class PaymentSuccessRateService : IPaymentSuccessRateService
             FROM adyen_transactions 
             {whereClause}";
 
-        return await connection.QueryFirstOrDefaultAsync<decimal>(query, parameters);
+        var result = await connection.QueryFirstOrDefaultAsync(query, parameters);
+        
+        var totalTransactions = (int)(result?.total_transactions ?? 0);
+        var approvedCount = (int)(result?.approved_count ?? 0);
+        var declinedCount = (int)(result?.declined_count ?? 0);
+        var netSales = (decimal)(result?.net_sales ?? 0);
+        var successRate = (decimal)(result?.success_rate ?? 0);
+        var avgTicket = approvedCount > 0 ? Math.Round(netSales / approvedCount, 2) : 0;
+
+        return (successRate, successRate, netSales, avgTicket, approvedCount, declinedCount, totalTransactions);
     }
 
-    private async Task<decimal> CalculateWeeklyRateAsync(NpgsqlConnection connection, string whereClause, object parameters)
+    private async Task<List<HourlyTrend>> CalculateHourlyTrendsAsync(string whereClause, object parameters)
     {
-        return await CalculateDailyRateAsync(connection, whereClause, parameters);
+        using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+        
+        var query = $@"
+            SELECT 
+                EXTRACT(HOUR FROM event_date) as hour,
+                COUNT(*) as total_transactions,
+                SUM(CASE WHEN success = true THEN 1 ELSE 0 END) as success_count,
+                SUM(CASE WHEN success = false THEN 1 ELSE 0 END) as failure_count,
+                COALESCE(
+                    ROUND(
+                        (SUM(CASE WHEN success = true THEN 1 ELSE 0 END)::decimal / COUNT(*)) * 100, 2
+                    ), 0
+                ) as success_rate
+            FROM adyen_transactions 
+            {whereClause}
+            GROUP BY EXTRACT(HOUR FROM event_date)
+            ORDER BY hour";
+
+        var results = await connection.QueryAsync(query, parameters);
+        
+        return results.Select(r => new HourlyTrend
+        {
+            Hour = (int)(r.hour ?? 0),
+            TotalTransactions = (int)(r.total_transactions ?? 0),
+            SuccessCount = (int)(r.success_count ?? 0),
+            FailureCount = (int)(r.failure_count ?? 0),
+            SuccessRate = (decimal)(r.success_rate ?? 0)
+        }).ToList();
     }
 
-    private async Task<List<PaymentMethodRate>> CalculatePaymentMethodRatesAsync(NpgsqlConnection connection, string whereClause, object parameters)
+    private async Task<FunnelMetrics> CalculateFunnelMetricsAsync(object parameters)
     {
+        using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+        
+        var whereClause = "WHERE event_date >= @StartDate AND event_date <= @EndDate";
+        if (parameters.GetType().GetProperty("LocationId")?.GetValue(parameters) is string locationId && !string.IsNullOrEmpty(locationId))
+        {
+            whereClause += " AND location_id = @LocationId";
+        }
+
+        var query = $@"
+            SELECT 
+                event_code,
+                COUNT(*) as count
+            FROM adyen_transactions 
+            {whereClause}
+            GROUP BY event_code";
+
+        var results = await connection.QueryAsync(query, parameters);
+        
+        var funnel = new FunnelMetrics();
+        
+        foreach (var result in results)
+        {
+            var eventCode = result.event_code?.ToString() ?? "";
+            var count = (int)(result.count ?? 0);
+            
+            switch (eventCode.ToUpper())
+            {
+                case "AUTHORISATION":
+                    funnel.Authorized = count;
+                    break;
+                case "CAPTURE":
+                    funnel.Captured = count;
+                    break;
+                case "SUBMIT_FOR_SETTLEMENT":
+                    funnel.SubmittedForSettlement = count;
+                    break;
+                case "CANCEL_OR_REFUND":
+                case "REFUND":
+                case "CANCELLATION":
+                    funnel.CancelledOrRefunded += count;
+                    break;
+            }
+        }
+        
+        // Initiated = total transactions
+        funnel.Initiated = results.Sum(r => (int)(r.count ?? 0));
+        
+        return funnel;
+    }
+
+    private async Task<List<PaymentMethodRate>> CalculatePaymentMethodRatesAsync(string whereClause, object parameters)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+        
         var query = $@"
             SELECT 
                 payment_method as PaymentMethod,
                 COUNT(*) as TotalTransactions,
+                SUM(CASE WHEN success = true THEN 1 ELSE 0 END) as SuccessCount,
+                SUM(CASE WHEN success = false THEN 1 ELSE 0 END) as FailureCount,
                 COALESCE(
                     ROUND(
                         (SUM(CASE WHEN success = true THEN 1 ELSE 0 END)::decimal / COUNT(*)) * 100, 2
@@ -99,12 +205,17 @@ public class PaymentSuccessRateService : IPaymentSuccessRateService
         return results.ToList();
     }
 
-    private async Task<List<LocationRate>> CalculateLocationRatesAsync(NpgsqlConnection connection, string whereClause, object parameters)
+    private async Task<List<LocationRate>> CalculateLocationRatesAsync(string whereClause, object parameters)
     {
+        using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+        
         var query = $@"
             SELECT 
                 location_id as LocationId,
                 COUNT(*) as TotalTransactions,
+                SUM(CASE WHEN success = true THEN 1 ELSE 0 END) as SuccessCount,
+                SUM(CASE WHEN success = false THEN 1 ELSE 0 END) as FailureCount,
                 COALESCE(
                     ROUND(
                         (SUM(CASE WHEN success = true THEN 1 ELSE 0 END)::decimal / COUNT(*)) * 100, 2
@@ -119,12 +230,17 @@ public class PaymentSuccessRateService : IPaymentSuccessRateService
         return results.ToList();
     }
 
-    private async Task<List<TerminalRate>> CalculateTerminalRatesAsync(NpgsqlConnection connection, string whereClause, object parameters)
+    private async Task<List<TerminalRate>> CalculateTerminalRatesAsync(string whereClause, object parameters)
     {
+        using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+        
         var query = $@"
             SELECT 
                 terminal_id as TerminalId,
                 COUNT(*) as TotalTransactions,
+                SUM(CASE WHEN success = true THEN 1 ELSE 0 END) as SuccessCount,
+                SUM(CASE WHEN success = false THEN 1 ELSE 0 END) as FailureCount,
                 COALESCE(
                     ROUND(
                         (SUM(CASE WHEN success = true THEN 1 ELSE 0 END)::decimal / COUNT(*)) * 100, 2

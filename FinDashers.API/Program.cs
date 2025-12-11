@@ -31,6 +31,17 @@ builder.Services.AddScoped<IRefundSpikeCalculator, RefundSpikeCalculator>();
 // Add Controllers
 builder.Services.AddControllers();
 
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -40,7 +51,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Disabled to prevent 307 redirects
+
+// Use CORS
+app.UseCors();
 
 // Map controllers
 app.MapControllers();

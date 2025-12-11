@@ -154,31 +154,21 @@
 
 <div class="ai-controls">
     <div class="control-group">
-        <label>Data Source</label>
-        <select id="dataSource">
-            <option value="file">Upload File</option>
-            <option value="api">API Endpoint</option>
-            <option value="websocket">WebSocket Stream</option>
-        </select>
+        <label>Start Date</label>
+        <input type="date" id="startDate" value="2000-01-10">
     </div>
     <div class="control-group">
-        <label>Refresh Interval</label>
-        <select id="refreshInterval">
-            <option value="5000">5 seconds</option>
-            <option value="30000">30 seconds</option>
-            <option value="60000">1 minute</option>
-            <option value="300000">5 minutes</option>
-        </select>
+        <label>End Date</label>
+        <input type="date" id="endDate" value="2026-12-10">
     </div>
     <div class="control-group">
-        <label>AI Agent</label>
-        <button id="toggleAgent">Start AI Agent</button>
+        <label>Location (Optional)</label>
+        <input type="text" id="locationId" placeholder="e.g. 115" value="115">
     </div>
 </div>
 
 <div style="text-align: center; margin-bottom: 20px;">
-    <input type="file" id="fileInput" accept=".json" style="padding: 12px 20px; border-radius: 25px; border: none; font-size: 14px; cursor: pointer;">
-    <input type="text" id="apiUrl" placeholder="Enter API URL" style="display: none; padding: 12px 20px; border-radius: 25px; border: none; font-size: 14px; width: 400px; margin-top: 10px;">
+    <button id="loadDashboard" style="padding: 12px 30px; background: #4facfe; color: white; border: none; border-radius: 25px; font-size: 16px; cursor: pointer; font-weight: bold;">Load Dashboard Data</button>
 </div>
 
 <div class="ai-insights" id="aiInsights">
@@ -193,6 +183,11 @@
 
 <div class="section">
     <div id="kpiCard" class="kpi-card"></div>
+</div>
+
+<div class="section">
+    <h2>Payment Health Heat Index</h2>
+    <div id="heatIndexCard" class="kpi-card" style="background: linear-gradient(135deg, #ff6b6b 0%, #feca57 100%);"></div>
 </div>
 
 <div class="section">
@@ -212,218 +207,271 @@
 </div>
 
 <script>
-class AIPaymentAgent {
+class DashboardManager {
     constructor() {
-        this.isActive = false;
-        this.dataHistory = [];
-        this.refreshTimer = null;
-        this.currentData = [];
+        this.apiBaseUrl = 'http://localhost:5144/api/Dashboard';
+        this.currentData = null;
         this.insights = [];
-        this.thresholds = {
-            successRate: 95,
-            avgResponseTime: 2000,
-            failureSpike: 10
-        };
         this.initializeControls();
+        this.setDefaultDates();
+    }
+
+    setDefaultDates() {
+        document.getElementById('startDate').value = '2000-01-10';
+        document.getElementById('endDate').value = '2026-12-10';
     }
 
     initializeControls() {
-        document.getElementById('dataSource').addEventListener('change', (e) => {
-            this.handleDataSourceChange(e.target.value);
+        document.getElementById('loadDashboard').addEventListener('click', () => {
+            this.loadDashboardData();
         });
-
-        document.getElementById('toggleAgent').addEventListener('click', () => {
-            this.toggleAgent();
-        });
-
-        document.getElementById('fileInput').addEventListener('change', (e) => {
-            this.handleFileUpload(e);
-        });
-
-        document.getElementById('refreshInterval').addEventListener('change', (e) => {
-            this.updateRefreshInterval(parseInt(e.target.value));
-        });
+        
+        // Auto-load on page load
+        this.loadDashboardData();
     }
 
-    handleDataSourceChange(source) {
-        const fileInput = document.getElementById('fileInput');
-        const apiUrl = document.getElementById('apiUrl');
+    async loadDashboardData() {
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const locationId = document.getElementById('locationId').value;
         
-        if (source === 'file') {
-            fileInput.style.display = 'inline-block';
-            apiUrl.style.display = 'none';
-        } else if (source === 'api') {
-            fileInput.style.display = 'none';
-            apiUrl.style.display = 'inline-block';
-        } else {
-            fileInput.style.display = 'none';
-            apiUrl.style.display = 'none';
+        if (!startDate || !endDate) {
+            this.addInsight('❌ Please select start and end dates', 'error');
+            return;
         }
-    }
-
-    toggleAgent() {
-        const button = document.getElementById('toggleAgent');
-        if (this.isActive) {
-            this.stopAgent();
-            button.textContent = 'Start AI Agent';
-            button.style.background = '#4facfe';
-        } else {
-            this.startAgent();
-            button.textContent = 'Stop AI Agent';
-            button.style.background = '#ff6b6b';
-        }
-    }
-
-    startAgent() {
-        this.isActive = true;
-        this.addInsight('AI Agent Started - Monitoring payment data in real-time', 'live');
         
-        const interval = parseInt(document.getElementById('refreshInterval').value);
-        
-        // Initial fetch
-        this.fetchAndAnalyzeData();
-        
-        // Set up periodic refresh
-        this.refreshTimer = setInterval(() => {
-            this.fetchAndAnalyzeData();
-        }, interval);
-    }
-
-    stopAgent() {
-        this.isActive = false;
-        if (this.refreshTimer) {
-            clearInterval(this.refreshTimer);
-            this.refreshTimer = null;
-        }
-        this.addInsight('AI Agent Stopped', 'warning');
-    }
-
-    async fetchAndAnalyzeData() {
-        const source = document.getElementById('dataSource').value;
+        this.addInsight('🔄 Loading dashboard data...', 'live');
         
         try {
-            let newData = [];
+            let url = `${this.apiBaseUrl}?StartDate=${startDate}&EndDate=${endDate}`;
+            if (locationId) {
+                url += `&LocationId=${locationId}`;
+            }
             
-            if (source === 'api') {
-                const apiUrl = document.getElementById('apiUrl').value;
-                if (apiUrl) {
-                    const response = await fetch(apiUrl);
-                    newData = await response.json();
-                    if (!Array.isArray(newData)) newData = [newData];
-                    this.addInsight(`📡 Fetched ${newData.length} transactions from API`, 'live');
-                }
-            } else if (source === 'websocket') {
-                // Simulate real-time data
-                newData = this.generateSimulatedData();
-                this.addInsight(`🔄 Generated ${newData.length} simulated transactions`, 'live');
-            } else if (source === 'file' && this.currentData.length > 0) {
-                // For file mode, just re-analyze existing data
-                this.analyzeData();
-                return;
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-
-            if (newData.length > 0) {
-                this.processNewData(newData);
-            }
+            
+            const data = await response.json();
+            this.currentData = data;
+            
+            this.updateDashboard(data);
+            this.addInsight('✅ Dashboard updated successfully', 'live');
+            
         } catch (error) {
-            this.addInsight(`❌ Data fetch error: ${error.message}`, 'error');
+            this.addInsight(`❌ Error loading data: ${error.message}`, 'error');
+            console.error('Dashboard API Error:', error);
         }
     }
 
-    generateSimulatedData() {
-        // Simulate new payment transactions
-        const count = Math.floor(Math.random() * 10) + 1;
-        const newTransactions = [];
+    updateDashboard(data) {
+        if (!data) return;
         
-        for (let i = 0; i < count; i++) {
-            newTransactions.push({
-                id: Date.now() + i,
-                success: Math.random() > 0.1,
-                event_date: new Date().toISOString(),
-                payment_method: ['visa', 'mastercard', 'applepay', 'googlepay'][Math.floor(Math.random() * 4)],
-                approved_amount: Math.floor(Math.random() * 100) + 10,
-                location_id: `LOC_${Math.floor(Math.random() * 5) + 1}`,
-                event_code: ['AUTHORISATION', 'CAPTURE', 'REFUND'][Math.floor(Math.random() * 3)]
-            });
-        }
+        // Update KPI Card with Payment Success Rate
+        this.generateKPICard(data.paymentSuccessRate);
         
-        return newTransactions;
+        // Update Heat Index Card
+        this.generateHeatIndexCard(data.paymentHealthHeatIndex);
+        
+        // Generate charts with new data
+        this.generateFunnelChart(data.paymentSuccessRate.funnelMetrics);
+        this.generateHourlyTrend(data.paymentSuccessRate.hourlyTrends);
+        this.generatePaymentMethodChart(data.paymentSuccessRate.paymentMethodRates);
+        this.generateLocationHeatmap(data.paymentSuccessRate.locationRates);
+        
+        // Analyze heat index for insights
+        this.analyzeHeatIndex(data.paymentHealthHeatIndex);
     }
 
-    processNewData(newData) {
-        // Merge with existing data
-        this.currentData = [...this.currentData, ...newData];
-        
-        // Keep only last 1000 transactions for performance
-        if (this.currentData.length > 1000) {
-            this.currentData = this.currentData.slice(-1000);
-        }
-
-        // Analyze and update dashboard
-        this.analyzeData();
-        this.updateDashboard();
-        
-        this.addInsight(`✅ Dashboard updated with ${this.currentData.length} total transactions`, 'live');
+    generateKPICard(successRateData) {
+        document.getElementById('kpiCard').innerHTML = `
+            <div class="kpi-main">
+                <h2>${successRateData.dailySuccessRate.toFixed(1)}%</h2>
+                <p>Payment Success Rate</p>
+            </div>
+            <div class="kpi-metrics">
+                <div class="kpi-metric">
+                    <div class="kpi-value">${successRateData.approvedCount.toLocaleString()}</div>
+                    <div class="kpi-label">Approved</div>
+                </div>
+                <div class="kpi-metric">
+                    <div class="kpi-value">${successRateData.declinedCount.toLocaleString()}</div>
+                    <div class="kpi-label">Declined</div>
+                </div>
+                <div class="kpi-metric">
+                    <div class="kpi-value">$${successRateData.netSales.toLocaleString()}</div>
+                    <div class="kpi-label">Net Sales</div>
+                </div>
+                <div class="kpi-metric">
+                    <div class="kpi-value">$${successRateData.avgTicket.toFixed(2)}</div>
+                    <div class="kpi-label">Avg Ticket</div>
+                </div>
+            </div>
+        `;
     }
 
-    analyzeData() {
-        if (this.currentData.length === 0) return;
-
-        const recentData = this.currentData.slice(-100); // Last 100 transactions
-        const successRate = (recentData.filter(d => d.success).length / recentData.length) * 100;
+    generateHeatIndexCard(heatIndexData) {
+        const totalScore = heatIndexData.totalScore || 0;
+        const healthStatus = heatIndexData.healthStatus || 'Unknown';
         
-        // AI Analysis
-        if (successRate < this.thresholds.successRate) {
-            this.addInsight(`⚠️ Success rate dropped to ${successRate.toFixed(1)}% - Below threshold of ${this.thresholds.successRate}%`, 'warning');
+        const statusColor = {
+            'Healthy': '#4CAF50',
+            'Moderate': '#FF9800', 
+            'Warning': '#FF5722',
+            'Critical': '#F44336'
+        }[healthStatus] || '#9E9E9E';
+        
+        document.getElementById('heatIndexCard').innerHTML = `
+            <div class="kpi-main">
+                <h2 style="color: ${statusColor}">${totalScore}/100</h2>
+                <p>Payment Health Heat Index</p>
+                <p style="font-size: 1rem; margin-top: 5px; color: ${statusColor}; font-weight: bold;">${healthStatus}</p>
+            </div>
+            <div class="kpi-metrics">
+                <div class="kpi-metric">
+                    <div class="kpi-value">${heatIndexData.unusualFailuresScore}/25</div>
+                    <div class="kpi-label">Unusual Failures</div>
+                </div>
+                <div class="kpi-metric">
+                    <div class="kpi-value">${heatIndexData.settlementDelayScore}/25</div>
+                    <div class="kpi-label">Settlement Delays</div>
+                </div>
+                <div class="kpi-metric">
+                    <div class="kpi-value">${heatIndexData.highRiskCardScore}/25</div>
+                    <div class="kpi-label">High-Risk Cards</div>
+                </div>
+                <div class="kpi-metric">
+                    <div class="kpi-value">${heatIndexData.refundSpikeScore}/25</div>
+                    <div class="kpi-label">Refund Spikes</div>
+                </div>
+            </div>
+        `;
+    }
+
+    generateFunnelChart(funnelMetrics) {
+        if (!funnelMetrics) return;
+        
+        Plotly.newPlot('funnelChart', [{
+            type: 'funnel',
+            y: ['Initiated', 'Authorized', 'Captured', 'Settled', 'Refunded'],
+            x: [funnelMetrics.initiated, funnelMetrics.authorized, funnelMetrics.captured, funnelMetrics.submittedForSettlement, funnelMetrics.cancelledOrRefunded],
+            marker: { color: ['#4facfe', '#00f2fe', '#96ceb4', '#feca57', '#ff6b6b'] }
+        }], {
+            title: 'Transaction Funnel',
+            margin: { t: 40, l: 80, r: 20, b: 40 }
+        });
+    }
+    
+    generateHourlyTrend(hourlyTrends) {
+        if (!hourlyTrends || hourlyTrends.length === 0) return;
+        
+        const hours = hourlyTrends.map(h => h.hour);
+        const rates = hourlyTrends.map(h => h.successRate);
+        
+        Plotly.newPlot('successTrend', [{
+            x: hours,
+            y: rates,
+            type: 'scatter',
+            mode: 'lines+markers',
+            line: { color: '#4facfe', width: 3 },
+            marker: { size: 6, color: '#00f2fe' }
+        }], {
+            title: 'Hourly Success Rate Trend',
+            xaxis: { title: 'Hour of Day' },
+            yaxis: { title: 'Success Rate (%)', range: [0, 100] },
+            margin: { t: 40, l: 60, r: 20, b: 40 }
+        });
+    }
+
+    generatePaymentMethodChart(paymentMethodRates) {
+        if (!paymentMethodRates || paymentMethodRates.length === 0) return;
+        
+        const methods = paymentMethodRates.map(m => m.paymentMethod);
+        const successCounts = paymentMethodRates.map(m => m.successCount);
+        const failureCounts = paymentMethodRates.map(m => m.failureCount);
+        
+        Plotly.newPlot('paymentMethodChart', [{
+            x: methods,
+            y: successCounts,
+            name: 'Success',
+            type: 'bar',
+            marker: { color: '#96ceb4' }
+        }, {
+            x: methods,
+            y: failureCounts,
+            name: 'Failure',
+            type: 'bar',
+            marker: { color: '#ff6b6b' }
+        }], {
+            title: 'Payment Method Performance',
+            xaxis: { title: 'Payment Method' },
+            yaxis: { title: 'Count' },
+            barmode: 'stack',
+            margin: { t: 40, l: 60, r: 20, b: 60 }
+        });
+    }
+
+    generateLocationHeatmap(locationRates) {
+        if (!locationRates || locationRates.length === 0) return;
+        
+        const locations = locationRates.map(l => l.locationId);
+        const failureRates = locationRates.map(l => (100 - l.successRate).toFixed(1));
+        
+        Plotly.newPlot('locationHeatmap', [{
+            z: [failureRates],
+            x: locations,
+            y: ['Failure Rate'],
+            type: 'heatmap',
+            colorscale: [[0, '#96ceb4'], [0.5, '#feca57'], [1, '#ff6b6b']],
+            hovertemplate: 'Location: %{x}<br>Failure Rate: %{z}%<extra></extra>'
+        }], {
+            title: 'Location Failure Rates',
+            xaxis: { title: 'Location ID' },
+            yaxis: { showticklabels: false },
+            margin: { t: 40, l: 60, r: 20, b: 80 }
+        });
+    }
+
+    analyzeHeatIndex(heatIndexData) {
+        const totalScore = heatIndexData.totalScore || 0;
+        
+        if (totalScore >= 80) {
+            this.addInsight(`🚨 CRITICAL: Heat Index at ${totalScore}/100 - Immediate attention required`, 'error');
+        } else if (totalScore >= 60) {
+            this.addInsight(`⚠️ WARNING: Heat Index at ${totalScore}/100 - Monitor closely`, 'warning');
+        } else if (totalScore >= 40) {
+            this.addInsight(`🟡 MODERATE: Heat Index at ${totalScore}/100 - Some issues detected`, 'warning');
+        } else {
+            this.addInsight(`✅ HEALTHY: Heat Index at ${totalScore}/100 - System operating normally`, 'live');
         }
-
-        // Detect payment method issues
-        const methodStats = {};
-        recentData.forEach(d => {
-            const method = d.payment_method || 'unknown';
-            if (!methodStats[method]) methodStats[method] = { success: 0, total: 0 };
-            methodStats[method].total++;
-            if (d.success) methodStats[method].success++;
-        });
-
-        Object.keys(methodStats).forEach(method => {
-            const stats = methodStats[method];
-            const rate = (stats.success / stats.total) * 100;
-            if (rate < 90 && stats.total > 5) {
-                this.addInsight(`🔍 ${method} payment method showing ${rate.toFixed(1)}% success rate`, 'warning');
-            }
-        });
-
-        // Detect location issues
-        const locationStats = {};
-        recentData.forEach(d => {
-            const location = d.location_id || 'unknown';
-            if (!locationStats[location]) locationStats[location] = { success: 0, total: 0 };
-            locationStats[location].total++;
-            if (d.success) locationStats[location].success++;
-        });
-
-        Object.keys(locationStats).forEach(location => {
-            const stats = locationStats[location];
-            const rate = (stats.success / stats.total) * 100;
-            if (rate < 85 && stats.total > 3) {
-                this.addInsight(`📍 Location ${location} experiencing issues: ${rate.toFixed(1)}% success rate`, 'error');
-            }
-        });
+        
+        // Analyze individual components
+        if (heatIndexData.unusualFailuresScore > 15) {
+            this.addInsight(`📈 Unusual failure spike detected (${heatIndexData.unusualFailuresScore}/25)`, 'warning');
+        }
+        if (heatIndexData.settlementDelayScore > 15) {
+            this.addInsight(`⏰ Settlement delays above normal (${heatIndexData.settlementDelayScore}/25)`, 'warning');
+        }
+        if (heatIndexData.highRiskCardScore > 15) {
+            this.addInsight(`🛡️ High-risk card activity detected (${heatIndexData.highRiskCardScore}/25)`, 'warning');
+        }
+        if (heatIndexData.refundSpikeScore > 15) {
+            this.addInsight(`🔄 Refund/chargeback spike detected (${heatIndexData.refundSpikeScore}/25)`, 'warning');
+        }
     }
 
     addInsight(message, type = 'live') {
         const timestamp = new Date().toLocaleTimeString();
         this.insights.unshift({ message, type, timestamp });
         
-        // Keep only last 10 insights
         if (this.insights.length > 10) {
             this.insights = this.insights.slice(0, 10);
         }
-
+        
         this.updateInsightsDisplay();
     }
-
+    
     updateInsightsDisplay() {
         const container = document.getElementById('insightsList');
         container.innerHTML = this.insights.map(insight => `
@@ -433,198 +481,12 @@ class AIPaymentAgent {
             </div>
         `).join('');
     }
-
-    handleFileUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            try {
-                let data = JSON.parse(e.target.result);
-                if (!Array.isArray(data)) data = [data];
-                
-                this.currentData = data;
-                this.addInsight(`📁 Loaded ${data.length} transactions from file`, 'live');
-                this.analyzeData();
-                this.updateDashboard();
-            } catch (err) {
-                this.addInsight(`❌ Invalid JSON file: ${err.message}`, 'error');
-            }
-        };
-        reader.readAsText(file);
-    }
-
-    updateRefreshInterval(interval) {
-        if (this.isActive && this.refreshTimer) {
-            clearInterval(this.refreshTimer);
-            this.refreshTimer = setInterval(() => {
-                this.fetchAndAnalyzeData();
-            }, interval);
-            this.addInsight(`🔄 Refresh interval updated to ${interval/1000} seconds`, 'live');
-        }
-    }
-
-    updateDashboard() {
-        if (this.currentData.length === 0) return;
-        
-        processPaymentData(this.currentData);
-    }
 }
 
-// Initialize AI Agent
-const aiAgent = new AIPaymentAgent();
+// Initialize Dashboard Manager
+const dashboardManager = new DashboardManager();
 
-// Original dashboard functions (simplified)
-function processPaymentData(data) {
-    data.forEach(d => {
-        if (typeof d.success === 'string') {
-            d.success = d.success.toLowerCase() === 'true';
-        }
-        if (d.event_date) {
-            try {
-                d._event_ts = new Date(d.event_date);
-            } catch (_) {
-                d._event_ts = new Date(d.created_at || Date.now());
-            }
-        } else {
-            d._event_ts = new Date(d.created_at || Date.now());
-        }
-    });
-
-    const approved = data.filter(d => d.success === true);
-    const declined = data.filter(d => d.success === false);
-    const successRate = ((approved.length / data.length) * 100).toFixed(1);
-    const netSales = approved.reduce((sum, t) => sum + (t.approved_amount || t.amount?.value || 0), 0);
-    const avgTicket = approved.length > 0 ? (netSales / approved.length).toFixed(2) : 0;
-
-    generateKPICard(successRate, approved.length, declined.length, netSales, avgTicket);
-    generateFunnelChart(data);
-    generateSuccessTrend(data);
-    generatePaymentMethodChart(data);
-    generateLocationHeatmap(data);
-}
-
-function generateKPICard(successRate, approvedCount, declinedCount, netSales, avgTicket) {
-    document.getElementById("kpiCard").innerHTML = `
-        <div class="kpi-main">
-            <h2>${successRate}%</h2>
-            <p>Payment Success Rate</p>
-        </div>
-        <div class="kpi-metrics">
-            <div class="kpi-metric">
-                <div class="kpi-value">${approvedCount.toLocaleString()}</div>
-                <div class="kpi-label">Approved</div>
-            </div>
-            <div class="kpi-metric">
-                <div class="kpi-value">${declinedCount.toLocaleString()}</div>
-                <div class="kpi-label">Declined</div>
-            </div>
-            <div class="kpi-metric">
-                <div class="kpi-value">$${netSales.toLocaleString()}</div>
-                <div class="kpi-label">Net Sales</div>
-            </div>
-            <div class="kpi-metric">
-                <div class="kpi-value">$${avgTicket}</div>
-                <div class="kpi-label">Avg Ticket</div>
-            </div>
-        </div>
-    `;
-}
-
-function generateFunnelChart(data) {
-    const initiated = data.length;
-    const authorized = data.filter(d => d.event_code === "AUTHORISATION" || d.success === true).length;
-    const captured = data.filter(d => d.event_code === "CAPTURE" || d.success === true).length;
-    const settled = data.filter(d => d.settlement_status === "success" || d.settlement_date).length;
-    const refunded = data.filter(d => d.event_code === "REFUND").length;
-
-    Plotly.newPlot("funnelChart", [{
-        type: "funnel",
-        y: ["Initiated", "Authorized", "Captured", "Settled", "Refunded"],
-        x: [initiated, authorized, captured, settled || captured, refunded],
-        marker: { color: ["#4facfe", "#00f2fe", "#96ceb4", "#feca57", "#ff6b6b"] }
-    }], { title: "Transaction Funnel", margin: { t: 40, l: 80, r: 20, b: 40 } });
-}
-
-function generateSuccessTrend(data) {
-    const hourlySuccess = {};
-    data.forEach(d => {
-        const hour = d._event_ts.getHours();
-        if (!hourlySuccess[hour]) hourlySuccess[hour] = { success: 0, total: 0 };
-        hourlySuccess[hour].total++;
-        if (d.success) hourlySuccess[hour].success++;
-    });
-
-    const hours = Array.from({length: 24}, (_, i) => i);
-    const rates = hours.map(h => {
-        const stats = hourlySuccess[h];
-        return stats ? ((stats.success / stats.total) * 100).toFixed(1) : 0;
-    });
-
-    Plotly.newPlot("successTrend", [{
-        x: hours, y: rates, type: "scatter", mode: "lines+markers",
-        line: { color: "#4facfe", width: 3 }, marker: { size: 6, color: "#00f2fe" }
-    }], {
-        title: "Hourly Success Rate",
-        xaxis: { title: "Hour of Day" },
-        yaxis: { title: "Success Rate (%)", range: [0, 100] },
-        margin: { t: 40, l: 60, r: 20, b: 40 }
-    });
-}
-
-function generatePaymentMethodChart(data) {
-    const methodStats = {};
-    data.forEach(d => {
-        const method = d.payment_method || "Unknown";
-        if (!methodStats[method]) methodStats[method] = { success: 0, failure: 0 };
-        if (d.success) methodStats[method].success++;
-        else methodStats[method].failure++;
-    });
-
-    const methods = Object.keys(methodStats);
-    const successCounts = methods.map(m => methodStats[m].success);
-    const failureCounts = methods.map(m => methodStats[m].failure);
-
-    Plotly.newPlot("paymentMethodChart", [{
-        x: methods, y: successCounts, name: "Success", type: "bar", marker: { color: "#96ceb4" }
-    }, {
-        x: methods, y: failureCounts, name: "Failure", type: "bar", marker: { color: "#ff6b6b" }
-    }], {
-        title: "Payment Method Performance",
-        xaxis: { title: "Payment Method" },
-        yaxis: { title: "Count" },
-        barmode: "stack",
-        margin: { t: 40, l: 60, r: 20, b: 60 }
-    });
-}
-
-function generateLocationHeatmap(data) {
-    const locationStats = {};
-    data.forEach(d => {
-        const location = d.location_id || d.terminal_id || "Unknown";
-        if (!locationStats[location]) locationStats[location] = { success: 0, total: 0 };
-        locationStats[location].total++;
-        if (d.success) locationStats[location].success++;
-    });
-
-    const locations = Object.keys(locationStats);
-    const failureRates = locations.map(loc => {
-        const stats = locationStats[loc];
-        return ((1 - stats.success / stats.total) * 100).toFixed(1);
-    });
-
-    Plotly.newPlot("locationHeatmap", [{
-        z: [failureRates], x: locations, y: ["Failure Rate"], type: "heatmap",
-        colorscale: [[0, "#96ceb4"], [0.5, "#feca57"], [1, "#ff6b6b"]],
-        hovertemplate: "Location: %{x}<br>Failure Rate: %{z}%<extra></extra>"
-    }], {
-        title: "Location Failure Rates",
-        xaxis: { title: "Location/Terminal ID" },
-        yaxis: { showticklabels: false },
-        margin: { t: 40, l: 60, r: 20, b: 80 }
-    });
-}
+// Dashboard is now fully integrated with the GetDashboardData API
 
 </script>
 </body>
