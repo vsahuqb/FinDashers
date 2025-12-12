@@ -13,17 +13,20 @@ public class DashboardController : ControllerBase
     private readonly IPaymentSuccessRateService _successRateService;
     private readonly IHeatIndexCalculatorService _heatIndexService;
     private readonly IConnectionMultiplexer _redis;
+    private readonly IWebSocketService _webSocketService;
     private readonly ILogger<DashboardController> _logger;
 
     public DashboardController(
         IPaymentSuccessRateService successRateService,
         IHeatIndexCalculatorService heatIndexService,
         IConnectionMultiplexer redis,
+        IWebSocketService webSocketService,
         ILogger<DashboardController> logger)
     {
         _successRateService = successRateService;
         _heatIndexService = heatIndexService;
         _redis = redis;
+        _webSocketService = webSocketService;
         _logger = logger;
     }
 
@@ -69,6 +72,9 @@ public class DashboardController : ControllerBase
             // Cache for 30 seconds
             var serialized = JsonSerializer.Serialize(response);
             await db.StringSetAsync(cacheKey, serialized, TimeSpan.FromSeconds(30));
+
+            // Broadcast to WebSocket clients
+            _ = Task.Run(async () => await _webSocketService.BroadcastDashboardUpdateAsync(response));
 
             _logger.LogInformation($"Generated and cached dashboard data for key: {cacheKey}");
             return Ok(response);

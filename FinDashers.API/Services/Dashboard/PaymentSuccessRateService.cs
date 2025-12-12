@@ -36,8 +36,9 @@ public class PaymentSuccessRateService : IPaymentSuccessRateService
         var paymentMethodTask = CalculatePaymentMethodRatesAsync(whereClause, parameters);
         var locationTask = CalculateLocationRatesAsync(whereClause, parameters);
         var terminalTask = CalculateTerminalRatesAsync(whereClause, parameters);
+        var statusCountsTask = CalculateStatusCountsAsync(parameters);
 
-        await Task.WhenAll(financialTask, hourlyTask, funnelTask, paymentMethodTask, locationTask, terminalTask);
+        await Task.WhenAll(financialTask, hourlyTask, funnelTask, paymentMethodTask, locationTask, terminalTask, statusCountsTask);
 
         var financialMetrics = await financialTask;
         var hourlyTrends = await hourlyTask;
@@ -45,6 +46,7 @@ public class PaymentSuccessRateService : IPaymentSuccessRateService
         var paymentMethodRates = await paymentMethodTask;
         var locationRates = string.IsNullOrEmpty(locationId) ? await locationTask : new List<LocationRate>();
         var terminalRates = await terminalTask;
+        var statusCounts = await statusCountsTask;
 
         return new PaymentSuccessRate
         {
@@ -59,7 +61,9 @@ public class PaymentSuccessRateService : IPaymentSuccessRateService
             FunnelMetrics = funnelMetrics,
             PaymentMethodRates = paymentMethodRates,
             LocationRates = locationRates,
-            TerminalRates = terminalRates
+            TerminalRates = terminalRates,
+            StatusCounts = statusCounts,
+            Components = CreateHealthComponents(financialMetrics.ApprovedCount, financialMetrics.TotalTransactions)
         };
     }
 
@@ -253,5 +257,42 @@ public class PaymentSuccessRateService : IPaymentSuccessRateService
 
         var results = await connection.QueryAsync<TerminalRate>(query, parameters);
         return results.ToList();
+    }
+
+    private async Task<List<PaymentStatusCount>> CalculateStatusCountsAsync(object parameters)
+    {
+        using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+        
+        var whereClause = "WHERE event_date >= @StartDate AND event_date <= @EndDate";
+        if (parameters.GetType().GetProperty("LocationId")?.GetValue(parameters) is string locationId && !string.IsNullOrEmpty(locationId))
+        {
+            whereClause += " AND location_id = @LocationId";
+        }
+
+        var query = $@"
+            SELECT 
+                event_code as Status,
+                COUNT(*) as Count
+            FROM adyen_transactions 
+            {whereClause}
+            GROUP BY event_code
+            ORDER BY Count DESC";
+
+        var results = await connection.QueryAsync<PaymentStatusCount>(query, parameters);
+        return results.ToList();
+    }
+
+    private List<HealthComponent> CreateHealthComponents(int approvedCount, int totalTransactions)
+    {
+        var successRate = totalTransactions > 0 ? (decimal)approvedCount / totalTransactions * 100 : 0;
+        
+        return new List<HealthComponent>
+        {
+            new() { Name = "Success Rate", Score = (int)Math.Min(successRate / 4, 25), MaxScore = 25 },
+            new() { Name = "Transaction Volume", Score = Math.Min(totalTransactions / 50, 25), MaxScore = 25 },
+            new() { Name = "Processing Health", Score = approvedCount > 0 ? 20 : 5, MaxScore = 25 },
+            new() { Name = "System Stability", Score = 18, MaxScore = 25 }
+        };
     }
 }
