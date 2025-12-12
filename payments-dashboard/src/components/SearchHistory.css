@@ -1,0 +1,137 @@
+.search-history-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.search-history-modal {
+  background: rgba(26, 26, 46, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  max-height: 70vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.search-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.search-history-header h3 {
+  color: white;
+  margin: 0;
+  font-size: 18px;
+}
+
+.search-history-content {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.history-section {
+  margin-bottom: 30px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.section-header h4 {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  font-size: 16px;
+}
+
+.clear-btn {
+  padding: 4px 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 4px;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.clear-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.query-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.query-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.query-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.query-item span {
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  flex: 1;
+  font-size: 14px;
+}
+
+.query-item span:hover {
+  color: white;
+}
+
+.favorite-btn, .remove-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 4px;
+  transition: color 0.2s ease;
+}
+
+.favorite-btn:hover, .remove-btn:hover {
+  color: #fbbf24;
+}
+
+.favorite-btn:disabled {
+  color: #fbbf24;
+  cursor: default;
+}
+
+.query-item.favorite .remove-btn {
+  color: #fbbf24;
+}
+
+.empty-state {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 20px;
+  font-style: italic;
+}

@@ -1,0 +1,117 @@
+.widget {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.widget.maximized {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(20px);
+}
+
+.widget.minimized {
+  height: auto;
+}
+
+.widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: move;
+}
+
+.widget-title {
+  color: white;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.widget-controls {
+  display: flex;
+  gap: 4px;
+}
+
+.widget-control {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.2s ease;
+}
+
+.widget-control:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.widget-control.close:hover {
+  background: rgba(255, 107, 107, 0.8);
+}
+
+.widget-control.minimize:hover {
+  background: rgba(255, 193, 7, 0.8);
+}
+
+.widget-control.maximize:hover {
+  background: rgba(40, 167, 69, 0.8);
+}
+
+.widget-content {
+  padding: 0;
+  transition: all 0.3s ease;
+}
+
+.widget.maximized .widget-content {
+  height: calc(100% - 49px);
+  overflow: auto;
+}
+
+/* Animation for minimize/expand */
+.widget.minimized .widget-content {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .widget.maximized {
+    top: 10px;
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+  }
+  
+  .widget-header {
+    padding: 10px 12px;
+  }
+  
+  .widget-title {
+    font-size: 13px;
+  }
+  
+  .widget-control {
+    width: 20px;
+    height: 20px;
+    font-size: 11px;
+  }
+}

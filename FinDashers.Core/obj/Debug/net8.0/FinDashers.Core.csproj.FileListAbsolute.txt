@@ -21,3 +21,11 @@ C:\Users\PradeepKu\FinDasher\FinDashers.Core\obj\Debug\net8.0\FinDashers.Core.dl
 C:\Users\PradeepKu\FinDasher\FinDashers.Core\obj\Debug\net8.0\refint\FinDashers.Core.dll
 C:\Users\PradeepKu\FinDasher\FinDashers.Core\obj\Debug\net8.0\FinDashers.Core.pdb
 C:\Users\PradeepKu\FinDasher\FinDashers.Core\obj\Debug\net8.0\ref\FinDashers.Core.dll
+C:\Users\vinods\Desktop\QuHackathon25\FinDashers\FinDashers.Core\obj\Debug\net8.0\FinDashers.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\vinods\Desktop\QuHackathon25\FinDashers\FinDashers.Core\obj\Debug\net8.0\FinDashers.Core.AssemblyInfoInputs.cache
+C:\Users\vinods\Desktop\QuHackathon25\FinDashers\FinDashers.Core\obj\Debug\net8.0\FinDashers.Core.AssemblyInfo.cs
+C:\Users\vinods\Desktop\QuHackathon25\FinDashers\FinDashers.Core\obj\Debug\net8.0\FinDashers.Core.csproj.CoreCompileInputs.cache
+C:\Users\vinods\Desktop\QuHackathon25\FinDashers\FinDashers.Core\obj\Debug\net8.0\FinDashers.Core.sourcelink.json
+C:\Users\vinods\Desktop\QuHackathon25\FinDashers\FinDashers.Core\obj\Debug\net8.0\FinDashers.Core.dll
+C:\Users\vinods\Desktop\QuHackathon25\FinDashers\FinDashers.Core\obj\Debug\net8.0\refint\FinDashers.Core.dll
+C:\Users\vinods\Desktop\QuHackathon25\FinDashers\FinDashers.Core\obj\Debug\net8.0\FinDashers.Core.pdb

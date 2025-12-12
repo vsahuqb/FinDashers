@@ -1,0 +1,8 @@
+/* Import modern design system */
+@import './modern-globals.css';
+@import './components.css';
+
+/* Legacy styles for backward compatibility - will be gradually removed */
+.legacy-gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}

@@ -1,0 +1,65 @@
+{
+  "paymentSuccessRate": {
+    "dailySuccessRate": 87.3,
+    "weeklySuccessRate": 85.2,
+    "netSales": 125847.50,
+    "avgTicket": 115.42,
+    "approvedCount": 1089,
+    "declinedCount": 158,
+    "totalTransactions": 1247,
+    "hourlyTrends": [
+      { "hour": 0, "successRate": 95.0, "totalTransactions": 20, "successCount": 19, "failureCount": 1 },
+      { "hour": 1, "successRate": 96.7, "totalTransactions": 15, "successCount": 14, "failureCount": 1 },
+      { "hour": 2, "successRate": 100.0, "totalTransactions": 8, "successCount": 8, "failureCount": 0 },
+      { "hour": 3, "successRate": 100.0, "totalTransactions": 5, "successCount": 5, "failureCount": 0 },
+      { "hour": 4, "successRate": 90.0, "totalTransactions": 10, "successCount": 9, "failureCount": 1 },
+      { "hour": 5, "successRate": 85.7, "totalTransactions": 14, "successCount": 12, "failureCount": 2 },
+      { "hour": 6, "successRate": 82.4, "totalTransactions": 34, "successCount": 28, "failureCount": 6 },
+      { "hour": 7, "successRate": 78.9, "totalTransactions": 57, "successCount": 45, "failureCount": 12 },
+      { "hour": 8, "successRate": 75.6, "totalTransactions": 82, "successCount": 62, "failureCount": 20 },
+      { "hour": 9, "successRate": 73.2, "totalTransactions": 97, "successCount": 71, "failureCount": 26 },
+      { "hour": 10, "successRate": 71.8, "totalTransactions": 110, "successCount": 79, "failureCount": 31 },
+      { "hour": 11, "successRate": 69.5, "totalTransactions": 118, "successCount": 82, "failureCount": 36 },
+      { "hour": 12, "successRate": 82.5, "totalTransactions": 120, "successCount": 99, "failureCount": 21 },
+      { "hour": 13, "successRate": 84.2, "totalTransactions": 114, "successCount": 96, "failureCount": 18 },
+      { "hour": 14, "successRate": 86.1, "totalTransactions": 108, "successCount": 93, "failureCount": 15 },
+      { "hour": 15, "successRate": 88.3, "totalTransactions": 102, "successCount": 90, "failureCount": 12 },
+      { "hour": 16, "successRate": 89.7, "totalTransactions": 97, "successCount": 87, "failureCount": 10 },
+      { "hour": 17, "successRate": 91.2, "totalTransactions": 91, "successCount": 83, "failureCount": 8 },
+      { "hour": 18, "successRate": 78.9, "totalTransactions": 95, "successCount": 75, "failureCount": 20 },
+      { "hour": 19, "successRate": 82.4, "totalTransactions": 85, "successCount": 70, "failureCount": 15 },
+      { "hour": 20, "successRate": 85.7, "totalTransactions": 70, "successCount": 60, "failureCount": 10 },
+      { "hour": 21, "successRate": 88.9, "totalTransactions": 54, "successCount": 48, "failureCount": 6 },
+      { "hour": 22, "successRate": 92.3, "totalTransactions": 39, "successCount": 36, "failureCount": 3 },
+      { "hour": 23, "successRate": 94.7, "totalTransactions": 19, "successCount": 18, "failureCount": 1 }
+    ],
+    "funnelMetrics": {
+      "initiated": 1247,
+      "authorized": 1089,
+      "captured": 1089,
+      "submittedForSettlement": 1050,
+      "cancelledOrRefunded": 39
+    },
+    "paymentMethodRates": [
+      { "paymentMethod": "visa", "successRate": 89.2, "totalTransactions": 450, "successCount": 401, "failureCount": 49 },
+      { "paymentMethod": "mc", "successRate": 85.1, "totalTransactions": 320, "successCount": 272, "failureCount": 48 },
+      { "paymentMethod": "amex", "successRate": 91.5, "totalTransactions": 180, "successCount": 165, "failureCount": 15 },
+      { "paymentMethod": "discover", "successRate": 87.8, "totalTransactions": 127, "successCount": 112, "failureCount": 15 },
+      { "paymentMethod": "paypal", "successRate": 93.2, "totalTransactions": 170, "successCount": 158, "failureCount": 12 }
+    ],
+    "terminalRates": [
+      { "terminalId": "43951", "successRate": 87.3, "totalTransactions": 425, "successCount": 371, "failureCount": 54 },
+      { "terminalId": "43952", "successRate": 89.1, "totalTransactions": 380, "successCount": 339, "failureCount": 41 },
+      { "terminalId": "43953", "successRate": 85.7, "totalTransactions": 442, "successCount": 379, "failureCount": 63 }
+    ]
+  },
+  "paymentHealthHeatIndex": {
+    "totalScore": 85,
+    "unusualFailuresScore": 15,
+    "settlementDelayScore": 8,
+    "highRiskCardScore": 12,
+    "refundSpikeScore": 5,
+    "healthStatus": "Good"
+  },
+  "generatedAt": "2025-12-11T12:53:08.9207492Z"
+}

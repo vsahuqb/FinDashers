@@ -1,0 +1,83 @@
+.tooltip-content {
+  background: var(--color-neutral-800);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-base);
+  padding: var(--spacing-2) var(--spacing-3);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  max-width: 300px;
+  z-index: 50;
+  animation: slideIn 0.15s ease-out;
+  box-shadow: var(--shadow-md);
+}
+
+.tooltip-content[data-side="top"] {
+  animation: slideInFromBottom 0.15s ease-out;
+}
+
+.tooltip-content[data-side="bottom"] {
+  animation: slideInFromTop 0.15s ease-out;
+}
+
+.tooltip-content[data-side="left"] {
+  animation: slideInFromRight 0.15s ease-out;
+}
+
+.tooltip-content[data-side="right"] {
+  animation: slideInFromLeft 0.15s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

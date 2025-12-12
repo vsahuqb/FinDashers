@@ -1,0 +1,53 @@
+.section {
+  margin-bottom: 40px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  margin-bottom: 20px;
+  padding: 8px 0;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
+}
+
+.section-header:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.section-title {
+  color: white;
+  font-size: 1.8rem;
+  margin: 0;
+  text-align: center;
+  flex: 1;
+}
+
+.collapse-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  color: white;
+  padding: 4px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+}
+
+.collapse-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.section-content {
+  width: 100%;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.section-content.collapsed {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0;
+}
