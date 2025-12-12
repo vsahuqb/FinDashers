@@ -18,27 +18,25 @@ import HeatmapChart from './components/charts/HeatmapChart';
 import FunnelChart from './components/charts/FunnelChart';
 import SankeyChart from './components/charts/SankeyChart';
 import RiskRingChart from './components/charts/RiskRingChart';
-import { DataProvider } from './context/DataContext';
+import { DataProvider, useData } from './context/DataContext';
 import { PreferencesProvider, usePreferences } from './context/PreferencesContext';
+import IntegrationTest from './components/IntegrationTest';
 
-const AppContent = () => {
+const DashboardContent = () => {
   const [showMoreAnalytics, setShowMoreAnalytics] = useState(false);
-  const { preferences, setFilters, resetPreferences } = usePreferences();
-
-  // Apply theme on component mount
-  useEffect(() => {
-    applyTheme();
-  }, []);
+  const { preferences, setFilters: setPreferenceFilters, resetPreferences } = usePreferences();
+  const { setFilters: setDataFilters } = useData();
 
   const handleFiltersChange = (newFilters) => {
-    setFilters(newFilters);
+    setPreferenceFilters(newFilters);
+    setDataFilters(newFilters);
     console.log('Filters changed:', newFilters);
   };
 
   return (
-    <DataProvider>
-      <div className="App">
-        <Layout>
+    <div className="App">
+      <IntegrationTest />
+      <Layout>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <FilterBar onFiltersChange={handleFiltersChange} initialFilters={preferences.filters} />
             <button 
@@ -240,8 +238,20 @@ const AppContent = () => {
               </Section>
             </TabPanel>
           </TabContainer>
-        </Layout>
-      </div>
+      </Layout>
+    </div>
+  );
+};
+
+const AppContent = () => {
+  // Apply theme on component mount
+  useEffect(() => {
+    applyTheme();
+  }, []);
+
+  return (
+    <DataProvider>
+      <DashboardContent />
     </DataProvider>
   );
 };

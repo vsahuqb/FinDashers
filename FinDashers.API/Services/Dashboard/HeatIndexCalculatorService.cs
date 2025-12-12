@@ -44,7 +44,14 @@ public class HeatIndexCalculatorService : IHeatIndexCalculatorService
             SettlementDelayScore = scores[1],
             HighRiskCardScore = scores[2],
             RefundSpikeScore = scores[3],
-            TotalScore = scores.Sum()
+            TotalScore = scores.Sum(),
+            Components = new List<HealthComponent>
+            {
+                new() { Name = "Unusual Failures", Score = scores[0], MaxScore = 25 },
+                new() { Name = "Settlement Delay", Score = scores[1], MaxScore = 25 },
+                new() { Name = "High Risk Cards", Score = scores[2], MaxScore = 25 },
+                new() { Name = "Refund Spikes", Score = scores[3], MaxScore = 25 }
+            }
         };
     }
 }

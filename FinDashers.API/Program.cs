@@ -27,6 +27,8 @@ builder.Services.AddScoped<IUnusualFailuresCalculator, UnusualFailuresCalculator
 builder.Services.AddScoped<ISettlementDelayCalculator, SettlementDelayCalculator>();
 builder.Services.AddScoped<IHighRiskCardCalculator, HighRiskCardCalculator>();
 builder.Services.AddScoped<IRefundSpikeCalculator, RefundSpikeCalculator>();
+builder.Services.AddSingleton<IWebSocketService, WebSocketService>();
+builder.Services.AddHostedService<DashboardBroadcastService>();
 
 // Add Controllers
 builder.Services.AddControllers();
@@ -36,7 +38,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://localhost:3000")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
@@ -55,6 +57,24 @@ if (app.Environment.IsDevelopment())
 
 // Use CORS
 app.UseCors();
+
+// Enable WebSocket
+app.UseWebSockets();
+
+// Map WebSocket endpoint
+app.Map("/ws", async context =>
+{
+    if (context.WebSockets.IsWebSocketRequest)
+    {
+        var webSocket = await context.WebSockets.AcceptWebSocketAsync();
+        var webSocketService = context.RequestServices.GetRequiredService<IWebSocketService>();
+        await webSocketService.HandleWebSocketAsync(webSocket);
+    }
+    else
+    {
+        context.Response.StatusCode = 400;
+    }
+});
 
 // Map controllers
 app.MapControllers();

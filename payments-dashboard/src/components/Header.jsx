@@ -1,15 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useConnection } from '../hooks/useConnection';
 import { useData } from '../context/DataContext';
 import SearchBar from './SearchBar';
 import MobileNav from './MobileNav';
+import ConnectionStatus from './ConnectionStatus';
 import './Header.css';
 
 function Header({ activeTab, onTabChange }) {
-  // Disabled connection hooks to prevent infinite loops
-  const connectionState = 'disconnected';
-  const connectionType = 'none';
-  const { updateFromApi } = useData();
+  const { connectionStatus, updateFromApi } = useData();
   const searchRef = useRef(null);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
 
@@ -44,7 +41,7 @@ function Header({ activeTab, onTabChange }) {
   }, []);
 
   const getStatusColor = () => {
-    switch (connectionState) {
+    switch (connectionStatus) {
       case 'connected': return '#4CAF50';
       case 'connecting': return '#FF9800';
       default: return '#f44336';
@@ -81,13 +78,7 @@ function Header({ activeTab, onTabChange }) {
           </div>
         </button>
         
-        <div className="connection-status-mini">
-          <div 
-            className="status-dot" 
-            style={{ backgroundColor: getStatusColor() }}
-            title={`Connection: ${connectionState} (${connectionType})`}
-          ></div>
-        </div>
+        <ConnectionStatus />
       </div>
       
       <MobileNav 

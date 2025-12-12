@@ -4,6 +4,8 @@ import './FilterBar.css';
 const FilterBar = ({ onFiltersChange, initialFilters = {} }) => {
   const [filters, setFilters] = useState({
     timeRange: '24h',
+    startDate: '',
+    endDate: '',
     paymentMethod: 'all',
     status: 'all',
     ...initialFilters
@@ -13,7 +15,8 @@ const FilterBar = ({ onFiltersChange, initialFilters = {} }) => {
     { value: '1h', label: '1 Hour' },
     { value: '24h', label: '24 Hours' },
     { value: '7d', label: '7 Days' },
-    { value: '30d', label: '30 Days' }
+    { value: '30d', label: '30 Days' },
+    { value: 'custom', label: 'Custom Range' }
   ];
 
   const paymentMethods = [
@@ -46,6 +49,8 @@ const FilterBar = ({ onFiltersChange, initialFilters = {} }) => {
   const resetFilters = () => {
     const defaultFilters = {
       timeRange: '24h',
+      startDate: '',
+      endDate: '',
       paymentMethod: 'all',
       status: 'all'
     };
@@ -98,6 +103,29 @@ const FilterBar = ({ onFiltersChange, initialFilters = {} }) => {
           ))}
         </select>
       </div>
+
+      {filters.timeRange === 'custom' && (
+        <>
+          <div className="filter-group">
+            <label className="filter-label">Start Date</label>
+            <input
+              type="datetime-local"
+              className="filter-select"
+              value={filters.startDate}
+              onChange={(e) => handleFilterChange('startDate', e.target.value)}
+            />
+          </div>
+          <div className="filter-group">
+            <label className="filter-label">End Date</label>
+            <input
+              type="datetime-local"
+              className="filter-select"
+              value={filters.endDate}
+              onChange={(e) => handleFilterChange('endDate', e.target.value)}
+            />
+          </div>
+        </>
+      )}
 
       <button className="reset-filters-btn" onClick={resetFilters}>
         Reset

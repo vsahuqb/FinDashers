@@ -23,6 +23,12 @@ public class PaymentSuccessRate
     public List<PaymentMethodRate> PaymentMethodRates { get; set; } = new();
     public List<LocationRate> LocationRates { get; set; } = new();
     public List<TerminalRate> TerminalRates { get; set; } = new();
+    
+    // Payment Status Counts
+    public List<PaymentStatusCount> StatusCounts { get; set; } = new();
+    
+    // Health Components
+    public List<HealthComponent> Components { get; set; } = new();
 }
 
 public class PaymentMethodRate
@@ -68,4 +74,17 @@ public class FunnelMetrics
     public int Captured { get; set; }
     public int SubmittedForSettlement { get; set; }
     public int CancelledOrRefunded { get; set; }
+}
+
+public class PaymentStatusCount
+{
+    public string Status { get; set; } = string.Empty;
+    public int Count { get; set; }
+}
+
+public class HealthComponent
+{
+    public string Name { get; set; } = string.Empty;
+    public int Score { get; set; }
+    public int MaxScore { get; set; } = 25;
 }
