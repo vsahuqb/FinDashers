@@ -1,0 +1,49 @@
+{
+  "payments": {
+    "location 115": { "id": "115", "role": "location" },
+    "location 2054": { "id": "2054", "role": "location" },
+    "location 116": { "id": "116", "role": "location" },
+    "downtown store": { "id": "115", "role": "location" },
+    "mall location": { "id": "116", "role": "location" },
+    
+    "employee 3836": { "id": "3836", "role": "employee" },
+    "employee 3837": { "id": "3837", "role": "employee" },
+    "john smith": { "id": "3836", "role": "employee" },
+    "jane doe": { "id": "3837", "role": "employee" },
+    
+    "terminal p630-454193596": { "id": "P630-454193596", "role": "terminal" },
+    "terminal p630-454193597": { "id": "P630-454193597", "role": "terminal" },
+    "pos terminal 1": { "id": "P630-454193596", "role": "terminal" },
+    "pos terminal 2": { "id": "P630-454193597", "role": "terminal" },
+    
+    "company 343": { "id": "343", "role": "company" },
+    "company 344": { "id": "344", "role": "company" },
+    "quick bites inc": { "id": "343", "role": "company" },
+    "fast food corp": { "id": "344", "role": "company" },
+    
+    "store 2054": { "id": "2054", "role": "store" },
+    "store 2055": { "id": "2055", "role": "store" },
+    "downtown franchise": { "id": "2054", "role": "store" },
+    "mall franchise": { "id": "2055", "role": "store" },
+    
+    "order type 81": { "id": "81", "role": "order_type" },
+    "order type 82": { "id": "82", "role": "order_type" },
+    "dine in": { "id": "81", "role": "order_type" },
+    "takeout": { "id": "82", "role": "order_type" },
+    "delivery": { "id": "83", "role": "order_type" },
+    
+    "meal period 94": { "id": "94", "role": "meal_period" },
+    "meal period 95": { "id": "95", "role": "meal_period" },
+    "breakfast": { "id": "94", "role": "meal_period" },
+    "lunch": { "id": "95", "role": "meal_period" },
+    "dinner": { "id": "96", "role": "meal_period" },
+    
+    "check 692cb24db93afd5132436601": { "id": "692cb24db93afd5132436601", "role": "check" },
+    "check 692cb24db93afd5132436602": { "id": "692cb24db93afd5132436602", "role": "check" },
+    
+    "visa": { "id": "visa", "role": "payment_method" },
+    "mastercard": { "id": "mc", "role": "payment_method" },
+    "amex": { "id": "amex", "role": "payment_method" },
+    "american express": { "id": "amex", "role": "payment_method" }
+  }
+}

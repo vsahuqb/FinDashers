@@ -1,0 +1,31 @@
+{
+  "domainDescription": "Adyen payment processing domain for Quick Service Restaurant (QSR) transactions. Supports analysis of payment transactions, revenue reporting, location performance, and failed payment investigation.",
+
+  "systemPromptInstructions": "You are a SQL expert specializing in Adyen payment data analysis for Quick Service Restaurant operations. Generate precise SQL queries to analyze payment transactions, revenue, performance, and payment failures. Always use table aliases and proper joins. Always return ALL columns from adyen_transactions EXCEPT the raw_event JSONB field. Do this by explicitly selecting each allowed column using the alias pt. When using subqueries, do not reference inner-scope table aliases (such as pt) from the outer query. Always reference the outer subquery alias when selecting columns in the outer query. Return only the SQL query unless specifically requested. when using subquries, never reference table aliases created inside the subquery from the outer query. Always reference the outer subquery alias (e.g., t.column_name).",
+
+  "userPrompt": "question: ",
+
+  "selectAllTransactionColumns": "pt.id, pt.psp_reference, pt.merchant_reference, pt.event_code, pt.event_date, pt.approved_amount, pt.currency, pt.merchant_account, pt.payment_method, pt.reason, pt.success, pt.location_id, pt.company_id, pt.terminal_id, pt.tender_reference, pt.created_at",
+
+  "annotatedSqlDefinitions": "-- Main Adyen webhook transactions table (PostgreSQL)\nCREATE TABLE IF NOT EXISTS adyen_transactions (\n    id BIGSERIAL PRIMARY KEY,\n    psp_reference VARCHAR(255) NOT NULL,\n    merchant_reference VARCHAR(255),\n    event_code VARCHAR(100) NOT NULL,\n    event_date TIMESTAMP NOT NULL,\n    approved_amount DECIMAL(10,2) NOT NULL DEFAULT 0,\n    currency VARCHAR(10) NOT NULL DEFAULT 'USD',\n    merchant_account VARCHAR(255),\n    payment_method VARCHAR(100),\n    reason VARCHAR(255),\n    success BOOLEAN NOT NULL DEFAULT false,\n    location_id VARCHAR(100),\n    company_id INTEGER,\n    terminal_id VARCHAR(100),\n    tender_reference VARCHAR(255),\n    raw_event JSONB,\n    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()\n);\n\n-- Restaurant locations table\nCREATE TABLE locations (\n    location_id VARCHAR(100) PRIMARY KEY,\n    location_name TEXT,\n    company_id TEXT,\n    store_id TEXT\n);",
+
+  "joinHints": "-- Common JOIN patterns:\n-- INNER JOIN locations l ON pt.location_id = l.location_id\n-- Use table aliases: pt for adyen_transactions, l for locations\n-- GROUP BY pt.location_id, l.location_name for location reporting",
+
+  "tableNames": [
+    "adyen_transactions",
+    "locations"
+  ],
+
+  "sqlPreamblePt1": [
+    "-- Set timezone and consistent date handling",
+    "-- Create indexes on psp_reference, event_date, success, location_id"
+  ],
+
+  "sqlPreamblePt2": [
+    "-- Example CTE for daily totals:\n-- WITH daily AS (\n--   SELECT DATE(event_date) AS day, SUM(approved_amount) AS revenue\n--   FROM adyen_transactions\n--   WHERE success = true\n--   GROUP BY DATE(event_date)\n-- )"
+  ],
+
+  "fewShotExamples": "Q: Show me all failed payments today\nA: SELECT pt.id, pt.psp_reference, pt.merchant_reference, pt.event_code, pt.event_date, pt.approved_amount, pt.currency, pt.merchant_account, pt.payment_method, pt.reason, pt.success, pt.location_id, pt.company_id, pt.terminal_id, pt.tender_reference, pt.created_at, l.location_name\n   FROM adyen_transactions pt\n   INNER JOIN locations l ON pt.location_id = l.location_id\n   WHERE pt.success = false AND DATE(pt.event_date) = CURRENT_DATE;\n\nQ: What is the total approved amount for location 115?\nA: SELECT l.location_name, SUM(pt.approved_amount) AS total_revenue, COUNT(*) AS transaction_count\n   FROM adyen_transactions pt\n   INNER JOIN locations l ON pt.location_id = l.location_id\n   WHERE pt.location_id = '115' AND pt.success = true\n   GROUP BY l.location_name;\n\nQ: Show payments for merchant reference ABC123\nA: SELECT pt.id, pt.psp_reference, pt.merchant_reference, pt.event_code, pt.event_date, pt.approved_amount, pt.currency, pt.merchant_account, pt.payment_method, pt.reason, pt.success, pt.location_id, pt.company_id, pt.terminal_id, pt.tender_reference, pt.created_at, l.location_name\n   FROM adyen_transactions pt\n   LEFT JOIN locations l ON pt.location_id = l.location_id\n   WHERE pt.merchant_reference = 'ABC123';\n\nQ: Show today's revenue by payment method\nA: SELECT pt.payment_method, SUM(pt.approved_amount) AS revenue, COUNT(*) AS count\n   FROM adyen_transactions pt\n   WHERE pt.success = true AND DATE(pt.event_date) = CURRENT_DATE\n   GROUP BY pt.payment_method\n   ORDER BY revenue DESC;\n\nQ: Find all transactions over $50\nA: SELECT pt.id, pt.psp_reference, pt.merchant_reference, pt.event_code, pt.event_date, pt.approved_amount, pt.currency, pt.merchant_account, pt.payment_method, pt.reason, pt.success, pt.location_id, pt.company_id, pt.terminal_id, pt.tender_reference, pt.created_at, l.location_name\n   FROM adyen_transactions pt\n   INNER JOIN locations l ON pt.location_id = l.location_id\n   WHERE pt.approved_amount > 50 AND pt.success = true\n   ORDER BY pt.approved_amount DESC;",
+
+  "databasePath": "data/databases/payments.db"
+}
