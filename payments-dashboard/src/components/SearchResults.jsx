@@ -25,11 +25,17 @@ const SearchResults = ({ isOpen, onClose }) => {
     <div className="search-results-overlay">
       <div className="search-results-modal">
         <div className="search-results-header">
-          <h3>Search Results: "{query}"</h3>
+          <h3>Search Results</h3>
           <button className="close-btn" onClick={onClose}>×</button>
         </div>
         
         <div className="search-results-content">
+          {query && (
+            <div className="user-query">
+              <span className="query-label">Query:</span> {query}
+            </div>
+          )}
+          
           {loading && <div className="loading">Searching...</div>}
           
           {error && <div className="error">Error: {error}</div>}
@@ -42,16 +48,12 @@ const SearchResults = ({ isOpen, onClose }) => {
                 <button onClick={handleExport} className="export-btn">Export CSV</button>
               </div>
               
-              <div className="sql-query">
-                <strong>SQL:</strong> <code>{results.sql}</code>
-              </div>
-              
               {results.results?.length > 0 ? (
                 <div className="results-table">
                   <table>
                     <thead>
                       <tr>
-                        {Object.keys(results.results[0]).map(key => (
+                        {Object.keys(results.results[0]).filter(key => key !== 'id').map(key => (
                           <th key={key}>{key}</th>
                         ))}
                       </tr>
@@ -59,7 +61,7 @@ const SearchResults = ({ isOpen, onClose }) => {
                     <tbody>
                       {results.results.map((row, i) => (
                         <tr key={i}>
-                          {Object.values(row).map((value, j) => (
+                          {Object.entries(row).filter(([key]) => key !== 'id').map(([key, value], j) => (
                             <td key={j}>{searchProcessor.formatValue(value)}</td>
                           ))}
                         </tr>

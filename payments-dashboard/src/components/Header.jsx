@@ -1,18 +1,23 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useConnection } from '../hooks/useConnection';
 import { useData } from '../context/DataContext';
 import SearchBar from './SearchBar';
+import SearchResults from './SearchResults';
 import MobileNav from './MobileNav';
-import ConnectionStatus from './ConnectionStatus';
 import './Header.css';
 
 function Header({ activeTab, onTabChange }) {
-  const { connectionStatus, updateFromApi } = useData();
+  // Disabled connection hooks to prevent infinite loops
+  const connectionState = 'disconnected';
+  const connectionType = 'none';
+  const { updateFromApi } = useData();
   const searchRef = useRef(null);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
 
   const handleSearch = (query) => {
     console.log('Search query:', query);
-    // TODO: Implement search functionality
+    setShowSearchResults(true);
   };
 
   const searchSuggestions = [
@@ -41,7 +46,7 @@ function Header({ activeTab, onTabChange }) {
   }, []);
 
   const getStatusColor = () => {
-    switch (connectionStatus) {
+    switch (connectionState) {
       case 'connected': return '#4CAF50';
       case 'connecting': return '#FF9800';
       default: return '#f44336';
@@ -78,7 +83,13 @@ function Header({ activeTab, onTabChange }) {
           </div>
         </button>
         
-        <ConnectionStatus />
+        <div className="connection-status-mini">
+          <div 
+            className="status-dot" 
+            style={{ backgroundColor: getStatusColor() }}
+            title={`Connection: ${connectionState} (${connectionType})`}
+          ></div>
+        </div>
       </div>
       
       <MobileNav 
@@ -86,6 +97,11 @@ function Header({ activeTab, onTabChange }) {
         onClose={() => setIsMobileNavOpen(false)}
         activeTab={activeTab}
         onTabChange={onTabChange}
+      />
+      
+      <SearchResults 
+        isOpen={showSearchResults}
+        onClose={() => setShowSearchResults(false)}
       />
     </header>
   );

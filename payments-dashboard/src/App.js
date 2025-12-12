@@ -18,25 +18,32 @@ import HeatmapChart from './components/charts/HeatmapChart';
 import FunnelChart from './components/charts/FunnelChart';
 import SankeyChart from './components/charts/SankeyChart';
 import RiskRingChart from './components/charts/RiskRingChart';
-import { DataProvider, useData } from './context/DataContext';
+import { DataProvider } from './context/DataContext';
 import { PreferencesProvider, usePreferences } from './context/PreferencesContext';
-import IntegrationTest from './components/IntegrationTest';
+import { SearchProvider } from './context/SearchContext';
+import SearchBar from './components/SearchBar';
+import SearchResults from './components/SearchResults';
 
-const DashboardContent = () => {
+const AppContent = () => {
   const [showMoreAnalytics, setShowMoreAnalytics] = useState(false);
-  const { preferences, setFilters: setPreferenceFilters, resetPreferences } = usePreferences();
-  const { setFilters: setDataFilters } = useData();
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const { preferences, setFilters, resetPreferences } = usePreferences();
+
+  // Apply theme on component mount
+  useEffect(() => {
+    applyTheme();
+  }, []);
 
   const handleFiltersChange = (newFilters) => {
-    setPreferenceFilters(newFilters);
-    setDataFilters(newFilters);
+    setFilters(newFilters);
     console.log('Filters changed:', newFilters);
   };
 
   return (
-    <div className="App">
-      <IntegrationTest />
-      <Layout>
+    <DataProvider>
+      <SearchProvider>
+        <div className="App">
+          <Layout>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <FilterBar onFiltersChange={handleFiltersChange} initialFilters={preferences.filters} />
             <button 
@@ -221,10 +228,16 @@ const DashboardContent = () => {
             </TabPanel>
             
             <TabPanel tabId="search">
-              <Section title="Search">
-                <div style={{ padding: '40px', textAlign: 'center', color: 'white' }}>
-                  <h3>Search functionality coming soon...</h3>
-                  <p>Natural language search will be implemented here.</p>
+              <Section title="Natural Language Search">
+                <div style={{ padding: '20px' }}>
+                  <SearchBar 
+                    onSearch={() => setShowSearchResults(true)}
+                    placeholder="Ask anything about your payments... (e.g., 'last 10 payments')"
+                  />
+                  <SearchResults 
+                    isOpen={showSearchResults}
+                    onClose={() => setShowSearchResults(false)}
+                  />
                 </div>
               </Section>
             </TabPanel>
@@ -238,20 +251,9 @@ const DashboardContent = () => {
               </Section>
             </TabPanel>
           </TabContainer>
-      </Layout>
-    </div>
-  );
-};
-
-const AppContent = () => {
-  // Apply theme on component mount
-  useEffect(() => {
-    applyTheme();
-  }, []);
-
-  return (
-    <DataProvider>
-      <DashboardContent />
+          </Layout>
+        </div>
+      </SearchProvider>
     </DataProvider>
   );
 };

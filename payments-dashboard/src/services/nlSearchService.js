@@ -1,31 +1,39 @@
-const API_URL = process.env.REACT_APP_NL2SQL_API_URL || 'https://api.example.com/nl2sql';
-const API_KEY = process.env.REACT_APP_NL2SQL_API_KEY || 'demo-key';
+const API_URL = process.env.REACT_APP_NL2SQL_API_URL || 'http://localhost:5144';
 
 class NLSearchService {
   async searchQuery(naturalLanguageQuery) {
+    console.log('NL2SQL API call started:', naturalLanguageQuery);
     try {
       this.validateQuery(naturalLanguageQuery);
       
-      const response = await fetch(`${API_URL}/query`, {
+      const requestBody = {
+        query: naturalLanguageQuery,
+        domain: 'payments'
+      };
+      
+      console.log('Making API request to:', `${API_URL}/api/query/query`);
+      console.log('Request body:', requestBody);
+      
+      const response = await fetch(`${API_URL}/api/query/query`, {
         method: 'POST',
         headers: {
+          'accept': '*/*',
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${API_KEY}`,
         },
-        body: JSON.stringify({
-          query: naturalLanguageQuery,
-          context: 'payments_dashboard',
-          schema: this.getSchemaContext()
-        })
+        body: JSON.stringify(requestBody)
       });
 
+      console.log('API response status:', response.status);
+      
       if (!response.ok) {
         throw new Error(`API Error: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
+      console.log('API response data:', data);
       return this.validateResponse(data);
     } catch (error) {
+      console.error('NL2SQL API error:', error);
       return this.handleError(error);
     }
   }
@@ -47,16 +55,20 @@ class NLSearchService {
       throw new Error('Invalid response format');
     }
     
-    const { sql, results, metadata } = data;
+    if (data.error) {
+      throw new Error(data.error);
+    }
     
-    if (!sql || typeof sql !== 'string') {
-      throw new Error('Response missing valid SQL query');
+    const { success, data: results, sqlScript, rowCount } = data;
+    
+    if (!success) {
+      throw new Error('Query execution failed');
     }
 
     return {
-      sql,
+      sql: Array.isArray(sqlScript) ? sqlScript.join('\n') : sqlScript || 'No SQL provided',
       results: results || [],
-      metadata: metadata || {},
+      metadata: { total_count: rowCount || 0, execution_time: '0.1s' },
       timestamp: new Date().toISOString()
     };
   }

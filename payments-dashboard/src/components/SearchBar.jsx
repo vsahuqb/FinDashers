@@ -1,37 +1,41 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useSearch } from '../context/SearchContext';
 import './SearchBar.css';
 
-const SearchBar = ({ onSearch, placeholder = "Ask anything about your payments...", suggestions = [] }) => {
+const SearchBar = ({ onSearch, placeholder = "Ask anything about your payments..." }) => {
   const [query, setQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+  const { search, getSuggestions, loading, error } = useSearch();
   const inputRef = useRef(null);
 
   useEffect(() => {
     if (query.length > 0) {
-      const filtered = suggestions.filter(suggestion =>
-        suggestion.toLowerCase().includes(query.toLowerCase())
-      );
-      setFilteredSuggestions(filtered);
-      setShowSuggestions(filtered.length > 0);
+      const suggestions = getSuggestions(query);
+      setFilteredSuggestions(suggestions);
+      setShowSuggestions(suggestions.length > 0);
     } else {
       setShowSuggestions(false);
     }
-  }, [query, suggestions]);
+  }, [query, getSuggestions]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (query.trim()) {
+    if (query.trim() && !loading) {
+      search(query.trim());
       onSearch?.(query.trim());
       setShowSuggestions(false);
     }
   };
 
   const handleSuggestionClick = (suggestion) => {
-    setQuery(suggestion);
-    onSearch?.(suggestion);
-    setShowSuggestions(false);
-    inputRef.current?.blur();
+    if (!loading) {
+      setQuery(suggestion);
+      search(suggestion);
+      onSearch?.(suggestion);
+      setShowSuggestions(false);
+      inputRef.current?.blur();
+    }
   };
 
   const handleClear = () => {
@@ -42,16 +46,17 @@ const SearchBar = ({ onSearch, placeholder = "Ask anything about your payments..
 
   return (
     <div className="search-bar-container">
-      <form className="search-bar" onSubmit={handleSubmit}>
-        <div className="search-icon">🔍</div>
+      <form className={`search-bar ${loading ? 'loading' : ''}`} onSubmit={handleSubmit}>
+        <div className="search-icon">{loading ? '⏳' : '🔍'}</div>
         <input
           ref={inputRef}
           type="text"
           className="search-input"
-          placeholder={placeholder}
+          placeholder={loading ? "Searching..." : placeholder}
           value={query}
+          disabled={loading}
           onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => query.length > 0 && setShowSuggestions(filteredSuggestions.length > 0)}
+          onFocus={() => !loading && query.length > 0 && setShowSuggestions(filteredSuggestions.length > 0)}
           onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
         />
         {query && (
@@ -61,7 +66,7 @@ const SearchBar = ({ onSearch, placeholder = "Ask anything about your payments..
         )}
       </form>
       
-      {showSuggestions && (
+      {showSuggestions && !loading && (
         <div className="suggestions-dropdown">
           {filteredSuggestions.map((suggestion, index) => (
             <div
@@ -72,6 +77,12 @@ const SearchBar = ({ onSearch, placeholder = "Ask anything about your payments..
               {suggestion}
             </div>
           ))}
+        </div>
+      )}
+      
+      {error && (
+        <div className="search-error">
+          ❌ {error}
         </div>
       )}
     </div>

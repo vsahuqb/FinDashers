@@ -27,7 +27,7 @@ const searchReducer = (state, action) => {
         history: [action.query, ...state.history.filter(h => h !== action.query)].slice(0, 10)
       };
     case 'SEARCH_ERROR':
-      return { ...state, loading: false, error: action.payload };
+      return { ...state, loading: false, error: action.payload, results: null };
     case 'CLEAR_RESULTS':
       return { ...state, results: null, error: null };
     case 'SET_SUGGESTIONS':
@@ -56,21 +56,27 @@ export const SearchProvider = ({ children }) => {
   }, [state.history]);
 
   const search = async (query) => {
-    if (!query.trim()) return;
+    console.log('Search function called with query:', query);
+    if (!query.trim()) {
+      console.log('Empty query, returning');
+      return;
+    }
 
     const cacheKey = query.toLowerCase().trim();
     
     // Check cache first
     if (state.cache.has(cacheKey)) {
+      console.log('Using cached result for:', query);
       dispatch({ type: 'SEARCH_SUCCESS', payload: state.cache.get(cacheKey), query });
       return;
     }
 
+    console.log('Starting new search for:', query);
     dispatch({ type: 'SEARCH_START' });
     
     try {
-      // Use mock search for development
-      const results = await nlSearchService.mockSearch(query);
+      // Use real NL2SQL API
+      const results = await nlSearchService.searchQuery(query);
       
       if (results.error) {
         dispatch({ type: 'SEARCH_ERROR', payload: results.error });
@@ -80,7 +86,14 @@ export const SearchProvider = ({ children }) => {
         dispatch({ type: 'SEARCH_SUCCESS', payload: results, query });
       }
     } catch (error) {
-      dispatch({ type: 'SEARCH_ERROR', payload: error.message });
+      // Fallback to mock if API fails
+      console.warn('API failed, using mock data:', error.message);
+      try {
+        const mockResults = await nlSearchService.mockSearch(query);
+        dispatch({ type: 'SEARCH_SUCCESS', payload: mockResults, query });
+      } catch (mockError) {
+        dispatch({ type: 'SEARCH_ERROR', payload: error.message });
+      }
     }
   };
 
@@ -105,11 +118,12 @@ export const SearchProvider = ({ children }) => {
     );
     
     const defaultSuggestions = [
-      'Show me failed payments today',
-      'What is the success rate this week?',
-      'Top payment methods by volume',
-      'Average transaction amount',
-      'Payment failures by country'
+      'last 10 payments',
+      'failed payments today',
+      'success rate this week',
+      'top payment methods',
+      'average transaction amount',
+      'payments by country'
     ];
     
     return [...filtered, ...defaultSuggestions.filter(s => 
